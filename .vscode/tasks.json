@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Single_Objective_optimization.py",
+      "type": "shell",
+      "command": "E:/D/Python/OpenCOR/Python/bin/python.exe",
+      "args": [
+        "${workspaceFolder}/Ca_OpenCOR_Calibration_2025(2)/Single_Objective_optimization.py"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
