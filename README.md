@@ -1,4 +1,5 @@
 2025_08_04
+
 How to Run:
 
 To run the code, you'll need OpenCOR installed on your computer. I'm using the latest version (0.8.3), which you can download: https://opencor.ws/downloads/
@@ -37,7 +38,8 @@ Initial parameter values: [0.05, 0.25, -60.0, -30.0, 0.0072, 0.334, 0.5, 38.0, -
   4.50000e+00  1.00000e-01  4.50000e+00  4.00000e-01  5.50000e+00
   2.75000e+01  1.16477e-01  5.00000e-02  5.00000e+00]...
  
-********************************************************************88
+********************************************************************
+
 2025_07_29
 
 Run the main script: Single_Objective_optimization.py
