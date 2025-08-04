@@ -28,7 +28,7 @@ Then I ran the script by typing:
 .\pythonshell.bat C:\Fariba_2025\Ca_OpenCOR_Calibration_2025\Single_Objective_optimization.py
 
 5. The terminal should then output something like this:
-6. 
+   
 ?? Script started running!
 Initial parameter values: [0.05, 0.25, -60.0, -30.0, 0.0072, 0.334, 0.5, 38.0, -50.0, 12.0, 16.0, 96485.0, 8345.0, 310.0, 0.1, 4.5, 0.1, 4.5, 0.4, 5.5, 27.5, 0.116477, 0.05, 5.0]
 ?? Cost: 0.114601, Params: [ 5.00000e-02  2.50000e-01 -6.00000e+01 -3.00000e+01  7.20000e-03
