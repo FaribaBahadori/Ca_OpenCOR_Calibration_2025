@@ -17,7 +17,9 @@ Here's a quick summary of the steps I followed:
 To run the command, I navigated to the folder containing pythonshell.bat by typing the commands below, pressing Enter after each line:
 
 PS C:\Users\fbir042> cd codes
+
 PS C:\Users\fbir042\codes> cd OpenCOR
+
 PS C:\Users\fbir042\codes\OpenCOR>
 
 Then I ran the script by typing:
