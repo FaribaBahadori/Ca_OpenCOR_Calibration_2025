@@ -8,7 +8,7 @@ Here's a quick summary of the steps I followed:
 
 1. Install OpenCOR (v0.8.3).
 2. Install VS Code and open the main Python file: "Single_Objective_optimization.py"
-3. Install missing libraries: When running the code, I received errors about missing libraries. I installed each one by typing pip install library_name in the terminal inside VS Code. I think some of the libraries I used are: csv, sys, os, numpy, pandas, and datetime.
+3. Install missing libraries: When running the code, I received errors about missing libraries. I installed each one by typing pip install library_name in the terminal inside VS Code. I think some of the libraries I used are: numpy, pandas, and scipy.
 4. Run the code: In the VS Code terminal, I ran this command: Executing task:
    
    C:\Users\fbir042\codes\OpenCOR\pythonshell.bat C:\Fariba_2025\Ca_OpenCOR_Calibration_2025\Single_Objective_optimization.py
