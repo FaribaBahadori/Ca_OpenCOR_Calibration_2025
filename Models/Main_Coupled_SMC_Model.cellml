@@ -38,7 +38,7 @@
     </component>
     <component name="SMC_Par">
         <variable name="Ca_in_SMC" public_interface="in" units="uM"/>
-        <variable name="Ca_in_SMC_dig" public_interface="in" units="uM"/>
+        <!--        var Ca_in_SMC_dig: uM {pub: in};-->
         <variable name="Ca_SR" public_interface="in" units="uM"/>
         <variable name="Ca_t" public_interface="in" units="uM"/>
         <variable name="I_ca" public_interface="in" units="uA_per_cmsq"/>
@@ -117,8 +117,8 @@
         <variable name="buf_i" public_interface="in" units="dimensionless"/>
         <variable name="k_bufs" public_interface="in" units="dimensionless"/>
         <variable name="buf_s" public_interface="in" units="dimensionless"/>
-        <variable initial_value="0" name="Ca_d" public_interface="in" units="dimensionless"/>
-        <variable name="Ca_d2" public_interface="in" units="dimensionless"/>
+        <!--        var Ca_d: dimensionless {init: 0, pub: in};
+        var Ca_d2: dimensionless {pub: in};-->
         <variable name="Ca_dSR" units="uM"/>
         <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
@@ -867,7 +867,7 @@
     <connection>
         <map_components component_1="asm_ca" component_2="SMC_Par"/>
         <map_variables variable_1="Ca_in_SMC" variable_2="Ca_in_SMC"/>
-        <map_variables variable_1="Ca_in_SMC_dig" variable_2="Ca_in_SMC_dig"/>
+        <!--        vars Ca_in_SMC_dig and Ca_in_SMC_dig;-->
         <map_variables variable_1="Ca_SR" variable_2="Ca_SR"/>
         <map_variables variable_1="Ca_t" variable_2="Ca_t"/>
         <map_variables variable_1="p_agonist" variable_2="p_agonist"/>
@@ -890,8 +890,8 @@
         <map_variables variable_1="t1_KCL" variable_2="t1_KCL"/>
         <map_variables variable_1="t2_KCL" variable_2="t2_KCL"/>
         <map_variables variable_1="tJ_in" variable_2="tJ_in"/>
-        <map_variables variable_1="Ca_d" variable_2="Ca_d"/>
-        <map_variables variable_1="Ca_d2" variable_2="Ca_d2"/>
+        <!--        vars Ca_d and Ca_d;
+        vars Ca_d2 and Ca_d2;-->
         <map_variables variable_1="Ca_E" variable_2="Ca_E"/>
         <map_variables variable_1="y" variable_2="y"/>
         <map_variables variable_1="phi1" variable_2="phi1"/>

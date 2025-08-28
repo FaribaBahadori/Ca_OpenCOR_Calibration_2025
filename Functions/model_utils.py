@@ -1,9 +1,19 @@
 import numpy as np
+
 import pandas as pd
+import sys
+import os
+# Add OpenCor_Py folder to path for OpenCOR Python
+sys.path.append(os.path.join(os.path.dirname(__file__), "OpenCor_Py"))
+from opencor_helper import SimulationHelper
+
+
 
 from Functions.OpenCor_Py.opencor_helper import SimulationHelper
 import matplotlib
 import matplotlib.pyplot as plt
+import csv
+from scipy.interpolate import interp1d
 matplotlib.use('Agg')
 from scipy.stats import qmc
 from sklearn.metrics import mean_squared_error, r2_score
@@ -14,14 +24,15 @@ class SimulationManager:
     def __init__(self,
                  model_path="./Models/Main_Coupled_SMC_Model.cellml",
                  dt=1,
-                 sim_time=1800,
+                 sim_time=2000,
                  pre_time=266,
                  solver_info=None,
                  tau=0,
-                 output_names = ['model_parameters1/Ca_in_SMC', 'SMC_Par/Ca_in_SMC_dig'],
+                 output_names = ['model_parameters1/Ca_in_SMC'],
                  cal_param_names=['SMC_Par/delta_SMC', 'SMC_Par/k_RyR'],
                  feature_names=['max_Ca', 'time_constant_to_max', 'time_to_return_to_baseline']):
 
+        # Default solver parameters if not provided
         if solver_info is None:
             solver_info = {'MaximumStep': 0.1, 'MaximumNumberOfSteps': 5000}
 
@@ -36,6 +47,28 @@ class SimulationManager:
         self.stim_params_names = ['Environment/tau']
         self.stim_param_vals = [tau]
         self.sim_object.set_param_vals(self.stim_params_names, self.stim_param_vals)
+        ############################
+       # def init_experimental_data(self, verbose=False):
+        #    csv_file_path = 'Experimental Data/Exp_data_Exp5_fig4_Ca_uM_Base_200sec.csv'
+        #    experimental_data_df = pd.read_csv(csv_file_path)    
+
+        ############################
+    def load_experimental_data(self, csv_Exp_file):
+        times = []
+        values = []
+        with open(csv_Exp_file, 'r') as f:
+            next(f)  # skip header
+            for line in f:
+                line = line.strip()
+                if line == '':
+                    continue
+                parts = line.split(',')  # split by comma
+                times.append(float(parts[0]))
+                values.append(float(parts[1]))
+        self.exp_times = np.array(times)
+        self.exp_values = np.array(values)
+        print(f"✅ Loaded {len(times)} experimental points from {csv_Exp_file}")
+
 
     def run_and_get_results(self, param_vals):
         self.sim_object.set_param_vals(self.call_param_names, param_vals)
@@ -72,14 +105,36 @@ class SimulationManager:
 
         return [z1, z2, z3]
 
+    # Cost function for optimisation
     def cost_function(self, param_vals_current, z_hat=None, verbose=True):
         outputs, t = self.run_and_get_results(param_vals_current)
-        Ca_in_SMC = np.squeeze(outputs[0])
-        Ca_in_SMC_dig = np.squeeze(outputs[1])
-        mse = np.mean((Ca_in_SMC - Ca_in_SMC_dig)**2)
+        Ca_in_SMC = np.squeeze(outputs[0])   # model output
+
+        # --- REPLACE HERE ---
+        matched_indices = []
+        unmatched_times = []
+
+        for i, et in enumerate(self.exp_times):
+            idx = np.where(t == et)[0]
+            if len(idx) == 0:
+                unmatched_times.append(et)  # store missing times
+            else:
+                matched_indices.append(idx[0])
+
+        if len(unmatched_times) > 0:
+            print(f"⚠️ Warning: {len(unmatched_times)} experimental times not found in model times: {unmatched_times}")
+
+        Ca_in_SMC_matched = [Ca_in_SMC[i] for i in matched_indices]
+        exp_values_matched = [self.exp_values[i] for i, et in enumerate(self.exp_times) if et in t]
+
+        mse = np.mean((np.array(Ca_in_SMC_matched) - np.array(exp_values_matched))**2)
+
         if verbose:
             print(f"Current params: {param_vals_current}, Cost (MSE): {mse:.6f}")
         return mse
+
+
+
 
     def Likelihood_cost_function(self, param_vals_current, z_hat, param_idx, current_value, verbose=True):
         theta_full = np.insert(param_vals_current, param_idx, current_value)
@@ -96,22 +151,22 @@ class SimulationManager:
             print(f"Current parameters: {theta_full}, Model output: {z_model}, Ground truth: {z_hat}, cost: {cost}")
 
         return cost
-
     def get_init_param_vals(self):
         return self.sim_object.get_init_param_vals(self.call_param_names)
-
+        
 
     def plot_model_out_and_experimental_data(self, outputs, t, output_file_path):
         Ca_in_SMC = np.squeeze(outputs[0])
-        Ca_in_SMC_dig = np.squeeze(outputs[1])
 
         plt.figure(figsize=(10, 6))
         plt.plot(t, Ca_in_SMC, label='Model Output: Ca_in_SMC', color='blue')
-        plt.plot(t, Ca_in_SMC_dig, label='Synthetic Reference: Ca_in_SMC_dig', color='red', linestyle='--')
+        plt.plot(self.exp_times, self.exp_values, 'ro', label='Experimental Data')  # CSV data
         plt.xlabel("Time (s)")
         plt.ylabel("Ca Concentration (uM)")
         plt.legend()
         plt.grid()
-        plt.title("Model Output vs Synthetic Experimental Data")
+        plt.title("Model Output vs Experimental Data")
         plt.savefig(output_file_path)
         plt.close()
+
+

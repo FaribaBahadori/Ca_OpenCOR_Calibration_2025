@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <model name="wang_2010" xmlns="http://www.cellml.org/cellml/1.1#" xmlns:cellml="http://www.cellml.org/cellml/1.1#">
     <component name="ca_parameters">
-        <!--test//-->
         <variable initial_value="2000" name="l_1" public_interface="out" units="per_uM_per_sec"/>
         <variable initial_value="1.0" name="l_2" public_interface="out" units="per_uM_per_sec"/>
         <variable initial_value="2000" name="l_3" public_interface="out" units="per_uM_per_sec"/>
@@ -20,6 +19,7 @@
         <variable initial_value="5.0" name="k_RyR" public_interface="out" units="per_sec"/>
         <variable initial_value="-50" name="Vm" public_interface="out" units="mV"/>
         <variable initial_value="12" name="km" public_interface="out" units="mV"/>
+        <!--test//test//-->
         <variable initial_value="16" name="gca" public_interface="out" units="nS_per_uM"/>
         <variable initial_value="96485" name="F" public_interface="out" units="C_per_mol"/>
         <variable initial_value="8345" name="R" public_interface="out" units="mJ_per_K_per_mol"/>
@@ -40,7 +40,7 @@
         <variable name="time" public_interface="in" units="second"/>
         <variable initial_value="0.116477" name="Ca_in_SMC" public_interface="out" units="uM"/>
         <!--/ var Ca_in_SMC: uM {pub: out};-->
-        <variable name="Ca_in_SMC_dig" public_interface="out" units="uM"/>
+        <!--       var Ca_in_SMC_dig: uM {pub: out};-->
         <variable name="J_release" public_interface="out" units="uM_per_sec"/>
         <variable name="J_serca" public_interface="out" units="uM_per_sec"/>
         <variable name="J_in" public_interface="out" units="uM_per_sec"/>
@@ -116,65 +116,16 @@
         <variable initial_value="0.06" name="buf_i" public_interface="out" units="dimensionless"/>
         <variable initial_value="1" name="k_bufs" public_interface="out" units="dimensionless"/>
         <variable initial_value="1" name="buf_s" public_interface="out" units="dimensionless"/>
-        <variable initial_value="0" name="Ca_d" public_interface="out" units="dimensionless"/>
-        <variable name="Ca_d2" public_interface="out" units="dimensionless"/>
+        <!--        var Ca_d: dimensionless {init: 0, pub: out};
+        var Ca_d2: dimensionless {pub: out};-->
+        <!--       ode(Ca_d, time) = sqr(Ca_in_SMC_dig*1{per_uM}-Ca_in_SMC*1{per_uM})*1{per_sec};-->
+        <!--       Ca_d2 = sel
+           case (time >= 266{second}) and (time < 2060{second}):
+               Ca_d;
+           otherwise:
+               0{dimensionless};
+       endsel;-->
         <math xmlns="http://www.w3.org/1998/Math/MathML">
-            <apply>
-                <eq/>
-                <apply>
-                    <diff/>
-                    <bvar>
-                        <ci>time</ci>
-                    </bvar>
-                    <ci>Ca_d</ci>
-                </apply>
-                <apply>
-                    <times/>
-                    <apply>
-                        <power/>
-                        <apply>
-                            <minus/>
-                            <apply>
-                                <times/>
-                                <ci>Ca_in_SMC_dig</ci>
-                                <cn cellml:units="per_uM">1</cn>
-                            </apply>
-                            <apply>
-                                <times/>
-                                <ci>Ca_in_SMC</ci>
-                                <cn cellml:units="per_uM">1</cn>
-                            </apply>
-                        </apply>
-                        <cn cellml:units="dimensionless">2</cn>
-                    </apply>
-                    <cn cellml:units="per_sec">1</cn>
-                </apply>
-            </apply>
-            <apply>
-                <eq/>
-                <ci>Ca_d2</ci>
-                <piecewise>
-                    <piece>
-                        <ci>Ca_d</ci>
-                        <apply>
-                            <and/>
-                            <apply>
-                                <geq/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">266</cn>
-                            </apply>
-                            <apply>
-                                <lt/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">2060</cn>
-                            </apply>
-                        </apply>
-                    </piece>
-                    <otherwise>
-                        <cn cellml:units="dimensionless">0</cn>
-                    </otherwise>
-                </piecewise>
-            </apply>
             <apply>
                 <eq/>
                 <ci>V</ci>
@@ -745,286 +696,20 @@
             <!--Ca_in_SMC= 1{uM}*(1{dimensionless}+tanh(20{dimensionless}*sin(10{per_sec}*time)));
  delta_SMC= 
              Ca_in_SMC=1{dimensionless}-pow(abs(sin(0.2{dimensionless}*time)),0.1{dimensionless});-->
-            <apply>
-                <eq/>
-                <ci>Ca_in_SMC_dig</ci>
-                <piecewise>
-                    <piece>
-                        <cn cellml:units="uM">0.116477</cn>
-                        <apply>
-                            <and/>
-                            <apply>
-                                <geq/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">0</cn>
-                            </apply>
-                            <apply>
-                                <lt/>
-                                <ci>time</ci>
-                                <ci>t0_KCL</ci>
-                            </apply>
-                        </apply>
-                    </piece>
-                    <piece>
-                        <apply>
-                            <times/>
-                            <apply>
-                                <plus/>
-                                <apply>
-                                    <times/>
-                                    <cn cellml:units="dimensionless">0.0044138736</cn>
-                                    <apply>
-                                        <minus/>
-                                        <apply>
-                                            <times/>
-                                            <ci>time</ci>
-                                            <cn cellml:units="per_sec">1</cn>
-                                        </apply>
-                                        <cn cellml:units="dimensionless">266</cn>
-                                    </apply>
-                                </apply>
-                                <cn cellml:units="dimensionless">0.116477</cn>
-                            </apply>
-                            <cn cellml:units="uM">1</cn>
-                        </apply>
-                        <apply>
-                            <and/>
-                            <apply>
-                                <geq/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">266</cn>
-                            </apply>
-                            <apply>
-                                <lt/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">313.5</cn>
-                            </apply>
-                        </apply>
-                    </piece>
-                    <piece>
-                        <apply>
-                            <times/>
-                            <apply>
-                                <plus/>
-                                <apply>
-                                    <minus/>
-                                    <apply>
-                                        <times/>
-                                        <cn cellml:units="dimensionless">3.84</cn>
-                                        <apply>
-                                            <power/>
-                                            <cn cellml:units="dimensionless">10</cn>
-                                            <apply>
-                                                <minus/>
-                                                <cn cellml:units="dimensionless">11</cn>
-                                            </apply>
-                                        </apply>
-                                        <apply>
-                                            <power/>
-                                            <apply>
-                                                <minus/>
-                                                <apply>
-                                                    <times/>
-                                                    <ci>time</ci>
-                                                    <cn cellml:units="per_sec">1</cn>
-                                                </apply>
-                                                <cn cellml:units="dimensionless">313.5</cn>
-                                            </apply>
-                                            <cn cellml:units="dimensionless">3</cn>
-                                        </apply>
-                                    </apply>
-                                    <apply>
-                                        <times/>
-                                        <cn cellml:units="dimensionless">9.63</cn>
-                                        <apply>
-                                            <power/>
-                                            <cn cellml:units="dimensionless">10</cn>
-                                            <apply>
-                                                <minus/>
-                                                <cn cellml:units="dimensionless">5</cn>
-                                            </apply>
-                                        </apply>
-                                        <apply>
-                                            <minus/>
-                                            <apply>
-                                                <times/>
-                                                <ci>time</ci>
-                                                <cn cellml:units="per_sec">1</cn>
-                                            </apply>
-                                            <cn cellml:units="dimensionless">313.5</cn>
-                                        </apply>
-                                    </apply>
-                                </apply>
-                                <cn cellml:units="dimensionless">0.326136</cn>
-                            </apply>
-                            <cn cellml:units="uM">1</cn>
-                        </apply>
-                        <apply>
-                            <and/>
-                            <apply>
-                                <geq/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">313.5</cn>
-                            </apply>
-                            <apply>
-                                <lt/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">902</cn>
-                            </apply>
-                        </apply>
-                    </piece>
-                    <piece>
-                        <apply>
-                            <times/>
-                            <apply>
-                                <plus/>
-                                <apply>
-                                    <minus/>
-                                    <apply>
-                                        <times/>
-                                        <apply>
-                                            <minus/>
-                                            <cn cellml:units="dimensionless">4.16</cn>
-                                        </apply>
-                                        <apply>
-                                            <power/>
-                                            <cn cellml:units="dimensionless">10</cn>
-                                            <apply>
-                                                <minus/>
-                                                <cn cellml:units="dimensionless">11</cn>
-                                            </apply>
-                                        </apply>
-                                        <apply>
-                                            <power/>
-                                            <apply>
-                                                <minus/>
-                                                <apply>
-                                                    <times/>
-                                                    <ci>time</ci>
-                                                    <cn cellml:units="per_sec">1</cn>
-                                                </apply>
-                                                <cn cellml:units="dimensionless">902</cn>
-                                            </apply>
-                                            <cn cellml:units="dimensionless">3</cn>
-                                        </apply>
-                                    </apply>
-                                    <apply>
-                                        <times/>
-                                        <cn cellml:units="dimensionless">1.3</cn>
-                                        <apply>
-                                            <power/>
-                                            <cn cellml:units="dimensionless">10</cn>
-                                            <apply>
-                                                <minus/>
-                                                <cn cellml:units="dimensionless">5</cn>
-                                            </apply>
-                                        </apply>
-                                        <apply>
-                                            <minus/>
-                                            <apply>
-                                                <times/>
-                                                <ci>time</ci>
-                                                <cn cellml:units="per_sec">1</cn>
-                                            </apply>
-                                            <cn cellml:units="dimensionless">902</cn>
-                                        </apply>
-                                    </apply>
-                                </apply>
-                                <cn cellml:units="dimensionless">0.277273</cn>
-                            </apply>
-                            <cn cellml:units="uM">1</cn>
-                        </apply>
-                        <apply>
-                            <and/>
-                            <apply>
-                                <geq/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">902</cn>
-                            </apply>
-                            <apply>
-                                <lt/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">1548</cn>
-                            </apply>
-                        </apply>
-                    </piece>
-                    <piece>
-                        <apply>
-                            <times/>
-                            <apply>
-                                <plus/>
-                                <apply>
-                                    <minus/>
-                                    <apply>
-                                        <times/>
-                                        <cn cellml:units="dimensionless">6.53</cn>
-                                        <apply>
-                                            <power/>
-                                            <cn cellml:units="dimensionless">10</cn>
-                                            <apply>
-                                                <minus/>
-                                                <cn cellml:units="dimensionless">12</cn>
-                                            </apply>
-                                        </apply>
-                                        <apply>
-                                            <power/>
-                                            <apply>
-                                                <minus/>
-                                                <apply>
-                                                    <times/>
-                                                    <ci>time</ci>
-                                                    <cn cellml:units="per_sec">1</cn>
-                                                </apply>
-                                                <cn cellml:units="dimensionless">1548</cn>
-                                            </apply>
-                                            <cn cellml:units="dimensionless">3</cn>
-                                        </apply>
-                                    </apply>
-                                    <apply>
-                                        <times/>
-                                        <cn cellml:units="dimensionless">2.08</cn>
-                                        <apply>
-                                            <power/>
-                                            <cn cellml:units="dimensionless">10</cn>
-                                            <apply>
-                                                <minus/>
-                                                <cn cellml:units="dimensionless">5</cn>
-                                            </apply>
-                                        </apply>
-                                        <apply>
-                                            <minus/>
-                                            <apply>
-                                                <times/>
-                                                <ci>time</ci>
-                                                <cn cellml:units="per_sec">1</cn>
-                                            </apply>
-                                            <cn cellml:units="dimensionless">1548</cn>
-                                        </apply>
-                                    </apply>
-                                </apply>
-                                <cn cellml:units="dimensionless">0.257955</cn>
-                            </apply>
-                            <cn cellml:units="uM">1</cn>
-                        </apply>
-                        <apply>
-                            <and/>
-                            <apply>
-                                <geq/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">1548</cn>
-                            </apply>
-                            <apply>
-                                <lt/>
-                                <ci>time</ci>
-                                <ci>t2_KCL</ci>
-                            </apply>
-                        </apply>
-                    </piece>
-                    <otherwise>
-                        <cn cellml:units="uM">0.116477</cn>
-                    </otherwise>
-                </piecewise>
-            </apply>
+            <!--        Ca_in_SMC_dig = sel
+            case (time >= 0{second}) and (time < t0_KCL):
+                0.116477{uM};
+            case (time >= 266{second}) and (time < 313.5{second}):
+                (0.0044138736{dimensionless}*(time*1{per_sec}-266{dimensionless})+0.116477{dimensionless})*1{uM};
+            case (time >= 313.5{second}) and (time < 902{second}):
+                (3.84{dimensionless}*pow(10{dimensionless}, -11{dimensionless})*pow(time*1{per_sec}-313.5{dimensionless}, 3{dimensionless})-9.63{dimensionless}*pow(10{dimensionless}, -5{dimensionless})*(time*1{per_sec}-313.5{dimensionless})+0.326136{dimensionless})*1{uM};
+            case (time >= 902{second}) and (time < 1548{second}):
+                (-4.16{dimensionless}*pow(10{dimensionless}, -11{dimensionless})*pow(time*1{per_sec}-902{dimensionless}, 3{dimensionless})-1.3{dimensionless}*pow(10{dimensionless}, -5{dimensionless})*(time*1{per_sec}-902{dimensionless})+0.277273{dimensionless})*1{uM};
+            case (time >= 1548{second}) and (time < t2_KCL):
+                (6.53{dimensionless}*pow(10{dimensionless}, -12{dimensionless})*pow(time*1{per_sec}-1548{dimensionless}, 3{dimensionless})-2.08{dimensionless}*pow(10{dimensionless}, -5{dimensionless})*(time*1{per_sec}-1548{dimensionless})+0.257955{dimensionless})*1{uM};
+            otherwise:
+                0.116477{uM};
+        endsel;-->
             <!--I've changed the initial value from  0.116477{uM} (fig4) to 0.05 (close to values 0.034 from Fig3), as in the paper(EXp5) is mentioned that may the initial values are not very accurate. -->
             <!--I have added 200 sec to time to reach an steady state before for initial values before applying KCL-->
             <!--Ca_in_SMC = nn*Ca_in_SMC_dig;-->
