@@ -1,0 +1,228 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model name="Yang_2005" xmlns="http://www.cellml.org/cellml/1.1#" xmlns:cellml="http://www.cellml.org/cellml/1.1#">
+    <component name="sGC_SMC">
+        <variable name="Eb" public_interface="out" units="dimensionless"/>
+        <variable initial_value="0" name="E6c" public_interface="out" units="dimensionless"/>
+        <variable initial_value="0" name="E5c" public_interface="out" units="dimensionless"/>
+        <variable initial_value="0" name="NO_SMC" public_interface="out" units="uM"/>
+        <variable initial_value="2000" name="h_one" units="per_uM_per_sec"/>
+        <variable initial_value="100" name="hm1" units="per_sec"/>
+        <variable initial_value="0.1" name="h_two" units="per_sec"/>
+        <variable initial_value="3" name="h_three" units="per_uM_per_sec"/>
+        <variable name="h_four" public_interface="out" units="per_sec"/>
+        <variable initial_value="0" name="cGMP_SMC" public_interface="out" units="uM"/>
+        <variable name="vd" public_interface="out" units="uM_per_sec"/>
+        <variable name="vp" public_interface="out" units="uM_per_sec"/>
+        <variable initial_value="0.8520" name="Vm_sgc" units="uM_per_sec"/>
+        <variable initial_value="2.0" name="Km_pde" units="uM"/>
+        <variable initial_value="0.0195" name="K_pde" units="per_sec"/>
+        <variable initial_value="0.01" name="k_dno" public_interface="out" units="per_sec"/>
+        <variable initial_value="0.003" name="J_no" public_interface="out" units="uM_per_sec"/>
+        <variable initial_value="2" name="m" units="dimensionless"/>
+        <variable initial_value="0.011" name="H_four" units="per_sec"/>
+        <variable name="time" public_interface="in" units="second"/>
+        <variable initial_value="0.0086" name="k_mlcpb" public_interface="out" units="per_sec"/>
+        <variable initial_value="0.0327" name="k_mlcpc" public_interface="out" units="per_sec"/>
+        <variable initial_value="5.5" name="k_mlcpm" public_interface="out" units="uM"/>
+        <variable initial_value="2" name="n_mlcph" public_interface="out" units="dimensionless"/>
+        <variable name="k2y" public_interface="out" units="per_sec"/>
+        <!-- k2y=k_mlcp in Yang et al. (2005)-->
+        <variable name="J_dif" public_interface="in" units="uM_per_sec"/>
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <apply>
+                <eq/>
+                <apply>
+                    <diff/>
+                    <bvar>
+                        <ci>time</ci>
+                    </bvar>
+                    <ci>E6c</ci>
+                </apply>
+                <apply>
+                    <minus/>
+                    <apply>
+                        <minus/>
+                        <apply>
+                            <minus/>
+                            <apply>
+                                <times/>
+                                <ci>h_one</ci>
+                                <ci>Eb</ci>
+                                <ci>NO_SMC</ci>
+                            </apply>
+                            <apply>
+                                <times/>
+                                <ci>hm1</ci>
+                                <ci>E6c</ci>
+                            </apply>
+                        </apply>
+                        <apply>
+                            <times/>
+                            <ci>h_two</ci>
+                            <ci>E6c</ci>
+                        </apply>
+                    </apply>
+                    <apply>
+                        <times/>
+                        <ci>h_three</ci>
+                        <ci>E6c</ci>
+                        <ci>NO_SMC</ci>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <apply>
+                    <diff/>
+                    <bvar>
+                        <ci>time</ci>
+                    </bvar>
+                    <ci>E5c</ci>
+                </apply>
+                <apply>
+                    <minus/>
+                    <apply>
+                        <plus/>
+                        <apply>
+                            <times/>
+                            <ci>h_three</ci>
+                            <ci>E6c</ci>
+                            <ci>NO_SMC</ci>
+                        </apply>
+                        <apply>
+                            <times/>
+                            <ci>h_two</ci>
+                            <ci>E6c</ci>
+                        </apply>
+                    </apply>
+                    <apply>
+                        <times/>
+                        <ci>h_four</ci>
+                        <ci>E5c</ci>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <ci>Eb</ci>
+                <apply>
+                    <minus/>
+                    <apply>
+                        <minus/>
+                        <cn cellml:units="dimensionless">1</cn>
+                        <ci>E5c</ci>
+                    </apply>
+                    <ci>E6c</ci>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <apply>
+                    <diff/>
+                    <bvar>
+                        <ci>time</ci>
+                    </bvar>
+                    <ci>cGMP_SMC</ci>
+                </apply>
+                <apply>
+                    <minus/>
+                    <ci>vp</ci>
+                    <ci>vd</ci>
+                </apply>
+            </apply>
+            <!--        ode(NO_SMC, time)   = J_dif-k_dno*NO_SMC;-->
+            <apply>
+                <eq/>
+                <ci>vp</ci>
+                <apply>
+                    <times/>
+                    <ci>Vm_sgc</ci>
+                    <ci>E5c</ci>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <ci>vd</ci>
+                <apply>
+                    <divide/>
+                    <apply>
+                        <times/>
+                        <apply>
+                            <power/>
+                            <ci>cGMP_SMC</ci>
+                            <cn cellml:units="dimensionless">2</cn>
+                        </apply>
+                        <ci>K_pde</ci>
+                    </apply>
+                    <apply>
+                        <plus/>
+                        <ci>Km_pde</ci>
+                        <ci>cGMP_SMC</ci>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <ci>h_four</ci>
+                <apply>
+                    <times/>
+                    <ci>H_four</ci>
+                    <apply>
+                        <power/>
+                        <apply>
+                            <times/>
+                            <ci>cGMP_SMC</ci>
+                            <cn cellml:units="per_uM">1</cn>
+                        </apply>
+                        <ci>m</ci>
+                    </apply>
+                </apply>
+            </apply>
+            <apply>
+                <eq/>
+                <ci>k2y</ci>
+                <apply>
+                    <plus/>
+                    <ci>k_mlcpb</ci>
+                    <apply>
+                        <divide/>
+                        <apply>
+                            <times/>
+                            <ci>k_mlcpc</ci>
+                            <apply>
+                                <power/>
+                                <apply>
+                                    <times/>
+                                    <ci>cGMP_SMC</ci>
+                                    <cn cellml:units="per_uM">1</cn>
+                                </apply>
+                                <ci>n_mlcph</ci>
+                            </apply>
+                        </apply>
+                        <apply>
+                            <plus/>
+                            <apply>
+                                <power/>
+                                <apply>
+                                    <times/>
+                                    <ci>cGMP_SMC</ci>
+                                    <cn cellml:units="per_uM">1</cn>
+                                </apply>
+                                <ci>n_mlcph</ci>
+                            </apply>
+                            <apply>
+                                <power/>
+                                <apply>
+                                    <times/>
+                                    <ci>k_mlcpm</ci>
+                                    <cn cellml:units="per_uM">1</cn>
+                                </apply>
+                                <ci>n_mlcph</ci>
+                            </apply>
+                        </apply>
+                    </apply>
+                </apply>
+            </apply>
+        </math>
+    </component>
+</model>
