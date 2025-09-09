@@ -1,15 +1,27 @@
-import sympy
+import sympy as sp
 from sympy import symbols, Eq, solve, exp
-
-# Define variables (symbols)
-Ca_in_SMC, Ca_SR, y = symbols('Ca_in_SMC Ca_SR y', positive=True, real=True)
-
 def solve_initial_vars(params, init_vals):
-    """Solve algebraic equations for Ca_in_SMC, Ca_SR, and y."""
+    # Define variables (symbols)
+    Ca_in_SMC, Ca_SR, y = symbols('Ca_in_SMC Ca_SR y', positive=True, real=True)
 
+    # Define parameters as symbols (just list the names you need)
+    param_names = [
+        'k_RyR','k_ryr0','k_ryr1','k_ryr2','k_ryr3','Jer',
+        'Ve','Ke','delta_SMC','alpha0','alpha1','gca','V0','Vm','km',
+        'Ca_E','F','R','T','Vp','Kp','gamma','l_4','l_m4'
+    ]
     # map dictionary keys directly (unpack parameters?) with shorter parameter names (remove 'SMC_Par/')
-    p = {k.split('/')[-1]: v for k, v in params.items()}
+    #p = {name: sp.symbols(name, positive=True, real=True) for name in param_names}
+    p = {}
+    for name in param_names:
+        if name in params:
+            # use the numeric value
+            p[name] = params[name]
+        else:
+            # define as symbolic
+            p[name] = sp.symbols(name, positive=True, real=True)
 
+    
     # Equation 1
     eq1 = Eq(
         (
@@ -47,19 +59,22 @@ def solve_initial_vars(params, init_vals):
     # Equation 3
     eq3 = Eq(
         ((p['l_4']* Ca_in_SMC)*(1-y) - p['l_m4']*y), 0)
-    # Solve the system of equations symbolically
+    # Solve the system of equations symbolically for the 3 variables
+    # eq1_sub = eq1.subs(y, y_expr)
+    # eq2_sub = eq2.subs(y, y_expr)
+    #eq3_sub = eq3.subs(y, y_expr)
 
-    y_expr = solve(eq3, y)[0]   # symbolic
-    eq1_sub = eq1.subs(y, y_expr)
-    eq2_sub = eq2.subs(y, y_expr)
-    solutions = solve((eq1_sub, eq2_sub), (Ca_in_SMC, Ca_SR), dict=True)
+    solutions = solve((eq1, eq2, eq3), (Ca_in_SMC, Ca_SR, y), dict=True)
+    if solutions:
+        print(solutions)
     # Check if no solution
-    if not solutions:
+    elif not solutions:
         print(" No symbolic solution found for initial variables.")
         print("Parameters causing failure:")
         for k, v in params.items():
             print(f"  {k}: {v}", end="  ")
         print()  # just to move to the next line after the loop
+        p = {k.split('/')[-1]: v for k, v in params.items()}
 
         # Second Optiona, using numerical solver (like nsolve)
         from sympy import nsolve, SympifyError
@@ -92,67 +107,7 @@ def solve_initial_vars(params, init_vals):
     Ca_SR_val = float(first_sol[Ca_SR])
     y_val = float(first_sol[y])
     return Ca_in_SMC_val, Ca_SR_val, y_val
-
-if False:
-    # Equation 1
-    eq1 = Eq(
-        (
-            (p['SMC_Par/k_ipr']*(
-                (p['SMC_Par/p_agonist']*Ca_in_SMC*(1-y)) /
-                ((p['SMC_Par/p_agonist']+p['SMC_Par/l_m1']/p['SMC_Par/l_1'])*(Ca_in_SMC+(p['SMC_Par/l_m5']/p['SMC_Par/l_5'])))
-            )**3)
-            + p['SMC_Par/k_RyR']*(
-                (p['SMC_Par/k_ryr0'] + p['SMC_Par/k_ryr1']*Ca_in_SMC**3 / (p['SMC_Par/k_ryr2']**3 + Ca_in_SMC**3))
-                * Ca_SR**4 / (p['SMC_Par/k_ryr3']**4 + Ca_SR**4)
-            )
-            + p['SMC_Par/Jer']
-        )*(Ca_SR - Ca_in_SMC)
-        - (p['SMC_Par/Ve']*Ca_in_SMC**2 / (p['SMC_Par/Ke']**2 + Ca_in_SMC**2))
-        + p['SMC_Par/delta_SMC']*(
-            p['SMC_Par/alpha0']
-            - p['SMC_Par/alpha1']*(
-                p['SMC_Par/gca'] * (1/(1+exp(-(p['SMC_Par/V0']-p['SMC_Par/Vm'])/p['SMC_Par/km'])))**2
-                * (p['SMC_Par/V0']*(Ca_in_SMC - p['SMC_Par/Ca_E']*exp(-2*p['SMC_Par/V0']*p['SMC_Par/F']/(p['SMC_Par/R']*p['SMC_Par/T'])))
-                   / (1 - exp(-2*p['SMC_Par/V0']*p['SMC_Par/F']/(p['SMC_Par/R']*p['SMC_Par/T'])))
-                ) * 1
-            )/(2*p['SMC_Par/F'])
-            + p['SMC_Par/alpha2']*p['SMC_Par/p_agonist']
-        )
-        - (p['SMC_Par/Vp']*Ca_in_SMC**4/(p['SMC_Par/Kp']**4+Ca_in_SMC**4)),
-        0
-)
-
-    # Equation 2
-    eq2 = Eq(
-        p['SMC_Par/gamma']*(
-            (p['SMC_Par/Ve']*Ca_in_SMC**2 / (p['SMC_Par/Ke']**2 + Ca_in_SMC**2))
-            - (
-                (p['SMC_Par/k_ipr']*(
-                    (p['SMC_Par/p_agonist']*Ca_in_SMC*(1-y)) /
-                    ((p['SMC_Par/p_agonist']+p['SMC_Par/l_m1']/p['SMC_Par/l_1'])*(Ca_in_SMC+(p['SMC_Par/l_m5']/p['SMC_Par/l_5'])))
-                )**3)
-                + p['SMC_Par/k_RyR']*(
-                    (p['SMC_Par/k_ryr0'] + p['SMC_Par/k_ryr1']*Ca_in_SMC**3 / (p['SMC_Par/k_ryr2']**3 + Ca_in_SMC**3))
-                    * Ca_SR**4 / (p['SMC_Par/k_ryr3']**4 + Ca_SR**4)
-                )
-                + p['SMC_Par/Jer']
-            )*(Ca_SR-Ca_in_SMC)
-        ),
-        0
-    )
-
-    if False:
-        # Equation 3
-        eq3 = Eq(
-            (
-                (p['SMC_Par/l_m4']*(p['SMC_Par/l_m2']/p['SMC_Par/l_2'])*(p['SMC_Par/l_m1']/p['SMC_Par/l_1'])
-                + p['SMC_Par/l_m2']*(p['SMC_Par/l_m4']/p['SMC_Par/l_4'])*p['SMC_Par/p_agonist'])
-                * Ca_in_SMC
-                / ((p['SMC_Par/l_m4']/p['SMC_Par/l_4'])*(p['SMC_Par/l_m2']/p['SMC_Par/l_2'])*((p['SMC_Par/l_m1']/p['SMC_Par/l_1'])+p['SMC_Par/p_agonist']))
-            )*(1-y)
-            - (
-                (p['SMC_Par/l_m2']*p['SMC_Par/p_agonist'] + p['SMC_Par/l_m4']*(p['SMC_Par/l_m3']/p['SMC_Par/l_3']))
-                /((p['SMC_Par/l_m3']/p['SMC_Par/l_3'])+p['SMC_Par/p_agonist'])
-            )*y,
-            0
-        )
+if __name__ == "__main__":
+    # dummy test call with empty dicts, since you’re using purely symbolic parameters
+    solutions = solve_initial_vars(params={}, init_vals={})
+    print("Returned solutions:", solutions)

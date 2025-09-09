@@ -94,9 +94,9 @@ class SimulationManager:
             init_vals = {var.split('/')[-1]: 0.0 for var in self.var_names}
         else:
             init_vals = {var.split('/')[-1]: val for var, val in zip(self.var_names, outputs)}
-
+        
         self.sim_object.set_param_vals(
-            ['SMC_Par/Ca_in_SMC', 'SMC_Par/Ca_SR', 'SMC_Par/y'],
+            self.var_names,
             [Ca_in_SMC_val, Ca_SR_val, y_val]
         )
 
