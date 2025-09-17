@@ -1,113 +1,55 @@
-import sympy as sp
-from sympy import symbols, Eq, solve, exp
-def solve_initial_vars(params, init_vals):
-    # Define variables (symbols)
-    Ca_in_SMC, Ca_SR, y = symbols('Ca_in_SMC Ca_SR y', positive=True, real=True)
+import numpy as np
+from scipy.optimize import fsolve
+from math import exp
 
-    # Define parameters as symbols (just list the names you need)
-    param_names = [
-        'k_RyR','k_ryr0','k_ryr1','k_ryr2','k_ryr3','Jer',
-        'Ve','Ke','delta_SMC','alpha0','alpha1','gca','V0','Vm','km',
-        'Ca_E','F','R','T','Vp','Kp','gamma','l_4','l_m4'
-    ]
-    # map dictionary keys directly (unpack parameters?) with shorter parameter names (remove 'SMC_Par/')
-    #p = {name: sp.symbols(name, positive=True, real=True) for name in param_names}
-    p = {}
-    for name in param_names:
-        if name in params:
-            # use the numeric value
-            p[name] = params[name]
-        else:
-            # define as symbolic
-            p[name] = sp.symbols(name, positive=True, real=True)
-
+def steady_state_smc(params, vari_init_vals):
+    """
+    Solve the steady-state Ca_in_SMC0, Ca_SR, and y using fsolve.
     
-    # Equation 1
-    eq1 = Eq(
-        (
-            
-        (p['k_RyR']*(
-            p['k_ryr0'] + (p['k_ryr1']*Ca_in_SMC**3 / (p['k_ryr2']**3 + Ca_in_SMC**3)))
-                * (Ca_SR**4 / (p['k_ryr3']**4 + Ca_SR**4))
-            + p['Jer'])*(Ca_SR-Ca_in_SMC)
-        - (p['Ve']*Ca_in_SMC**2 / (p['Ke']**2 + Ca_in_SMC**2))
-        + p['delta_SMC']*((
-            p['alpha0']
-            - p['alpha1']*(
-                p['gca'] * (1/(1+exp(-(p['V0']-p['Vm'])/p['km'])))**2
-                 *(p['V0']*(Ca_in_SMC - p['Ca_E']*exp(-2*p['V0']*p['F']/(p['R']*p['T'])))
-                   / (1 - exp(-2*p['V0']*p['F']/(p['R']*p['T'])))
-                )
-            /(2*p['F']))
+    params    : dictionary containing all numeric parameter values
+    vari_init_vals : dictionary with initial guesses for Ca_in_SMC and Ca_SR
+    Returns   : Ca_in_SMC, Ca_SR, y (floats)
+    """
+
+    # Extract parameters
+    p = {k.split('/')[-1]: v for k, v in params.items()}
+
+    # 1) Solve Eq1 for Ca_in_SMC0
+    def f_eq(c):
+        # c is array-like, fsolve passes it as [c]
+        Ca_in_SMC0 = c[0]
+        val = (
+            (-p['alpha1'] * p['gca'] * p['V0'] * p['Vp'] / (2 * p['F'])) * Ca_in_SMC0**5
+            + (
+                p['alpha0'] * (1 - exp(-p['V0']*p['F']/(p['R']*p['T']))) *
+                (1 + exp(-(p['V0'] - p['Vm'])/p['km']))**2
+                + (p['alpha1']*p['gca']*p['V0']*p['Vp']*p['Ca_E']*exp(-p['V0']*p['F']/(p['R']*p['T']))/(2*p['F']))
+            ) * Ca_in_SMC0**4
+            + p['alpha0']*(1 - exp(-p['V0']*p['F']/(p['R']*p['T']))) *
+              (1 + exp(-(p['V0'] - p['Vm'])/p['km']))**2 * p['Kp']**4
         )
-        - (p['Vp']*Ca_in_SMC**4/(p['Kp']**4+Ca_in_SMC**4)))),
-        0
+        return val
+
+    Ca_in_SMC0_val = fsolve(f_eq, np.array([vari_init_vals['Ca_in_SMC0']]))[0]
+
+    # 2) Solve Eq2 for Ca_SR
+    def g_eq(s):
+        # s is array-like, fsolve passes it as [s]
+        Ca_SR = s[0]
+        Ca_in_SMC0 = Ca_in_SMC0_val
+        term1 = p['k_RyR'] * (p['k_ryr0'] + (p['k_ryr1'] * Ca_in_SMC0**3) / (p['k_ryr2']**3 + Ca_in_SMC0**3))
+        term2 = p['Ve'] * Ca_in_SMC0**2 / (p['Ke']**2 + Ca_in_SMC0**2)
+        val = (
+            (term1 + p['Jer'])*Ca_SR**5
+            - (term1 + p['Jer']*Ca_in_SMC0 + term2)*Ca_SR**4
+            + p['Jer']*(p['k_ryr3']**4)*Ca_SR
+            - (p['k_ryr3']**4)*(p['Jer'] + term2)
         )
+        return val
 
-    # Equation 2
-    eq2 = Eq(
-        p['gamma']*(
-            (p['Ve']*Ca_in_SMC**2 / (p['Ke']**2 + Ca_in_SMC**2))
-            - ((p['k_RyR']*(
-                p['k_ryr0'] + (p['k_ryr1']*Ca_in_SMC**3 / (p['k_ryr2']**3 + Ca_in_SMC**3)))
-                    * (Ca_SR**4 / (p['k_ryr3']**4 + Ca_SR**4))              
-                + p['Jer'])
-              )*(Ca_SR-Ca_in_SMC)
-        ),
-        0
-        )
-    # Equation 3
-    eq3 = Eq(
-        ((p['l_4']* Ca_in_SMC)*(1-y) - p['l_m4']*y), 0)
-    # Solve the system of equations symbolically for the 3 variables
-    # eq1_sub = eq1.subs(y, y_expr)
-    # eq2_sub = eq2.subs(y, y_expr)
-    #eq3_sub = eq3.subs(y, y_expr)
+    Ca_SR_val = fsolve(g_eq, np.array([vari_init_vals['Ca_SR0']]))[0]
 
-    solutions = solve((eq1, eq2, eq3), (Ca_in_SMC, Ca_SR, y), dict=True)
-    if solutions:
-        print(solutions)
-    # Check if no solution
-    elif not solutions:
-        print(" No symbolic solution found for initial variables.")
-        print("Parameters causing failure:")
-        for k, v in params.items():
-            print(f"  {k}: {v}", end="  ")
-        print()  # just to move to the next line after the loop
-        p = {k.split('/')[-1]: v for k, v in params.items()}
+    # 3) Compute y
+    y_val = (p['l_4'] * Ca_in_SMC0_val) / (p['l_4'] * Ca_in_SMC0_val + p['l_m4'])
 
-        # Second Optiona, using numerical solver (like nsolve)
-        from sympy import nsolve, SympifyError
-        try:
-            numeric_sol = nsolve(
-                (eq1, eq2, eq3), 
-                (Ca_in_SMC, Ca_SR, y), 
-                [init_vals['Ca_in_SMC'], init_vals['Ca_SR'], init_vals['y']],
-                tol=1e-12,        # tight tolerance
-                maxsteps=50       # maximum allowed iterations)
-            )
-            Ca_in_SMC_val, Ca_SR_val, y_val = [float(v) for v in numeric_sol]
-            print(f"Numeric solution: Ca_in_SMC={Ca_in_SMC_val}, Ca_SR={Ca_SR_val}, y={y_val}")
-        except Exception as e:
-            # detect convergence failure specifically
-            if "convergence" in str(e).lower() or "tolerance" in str(e).lower():
-                raise RuntimeError(
-               "Solver stopped: maximum steps or tolerance reached without convergence."
-                ) from e
-            else:
-                raise  # re-raise other errors normally
-
-    # If solutions exist, print all and return first
-    print(f" Found {len(solutions)} symbolic solution(s):")
-    for idx, sol in enumerate(solutions, start=1):
-        print(f"Solution {idx}: Ca_in_SMC={sol[Ca_in_SMC]}, Ca_SR={sol[Ca_SR]}, y={sol[y]}")
-
-    first_sol = solutions[0]
-    Ca_in_SMC_val = float(first_sol[Ca_in_SMC])
-    Ca_SR_val = float(first_sol[Ca_SR])
-    y_val = float(first_sol[y])
-    return Ca_in_SMC_val, Ca_SR_val, y_val
-if __name__ == "__main__":
-    # dummy test call with empty dicts, since you’re using purely symbolic parameters
-    solutions = solve_initial_vars(params={}, init_vals={})
-    print("Returned solutions:", solutions)
+    return float(Ca_in_SMC0_val), float(Ca_SR_val), float(y_val)

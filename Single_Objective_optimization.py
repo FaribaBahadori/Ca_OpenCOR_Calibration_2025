@@ -39,7 +39,7 @@ param_names = [
     'SMC_Par/Vp', 'SMC_Par/Kp', 'SMC_Par/gamma',
     'SMC_Par/delta_SMC', 'SMC_Par/k_RyR', 'SMC_Par/k_ipr'
 ]
-vari_names=['SMC_Par/Ca_in_SMC', 'SMC_Par/Ca_SR', 'SMC_Par/y']
+vari_names=['SMC_Par/Ca_in_SMC0', 'SMC_Par/Ca_SR0', 'SMC_Par/y0']
 
 output_names = ['SMC_Par/Ca_in_SMC']
 
@@ -52,27 +52,36 @@ model_path = os.path.abspath(os.path.join(working_dir, "Model", "Main_Coupled_SM
 output_file_path = "outputs/Single_objective/run2/"
 if not os.path.exists(output_file_path):
     os.makedirs(output_file_path)
-
-sim_manager = SimulationManager(cal_param_names=param_names, var_names=vari_names, tau=0.0, sim_time=SIM_TIME, pre_time=PRE_TIME)
+sim_manager = SimulationManager(cal_param_names=param_names, cal_var_names=vari_names, tau=0.0, sim_time=SIM_TIME, pre_time=PRE_TIME)
+print(' t2')
 #---------------------------------------------
+'''
 # Access each state individually
 init_Ca_in_SMC = sim_manager.sim_object.data.states()['SMC_Par/Ca_in_SMC']
 init_Ca_SR = sim_manager.sim_object.data.states()['SMC_Par/Ca_SR']
 init_y = sim_manager.sim_object.data.states()['SMC_Par/y']
 print("Initial values:Ca_in_SMC:", init_Ca_in_SMC, "Ca_SR:", init_Ca_SR, "y:", init_y)
-
+'''
 #---------------------------------------------
 # Load experimental CSV data
 csv_exp_file = r"C:\\Fariba_2025\\Ca_OpenCOR_Calibration_2025\\Experimental Data\\Exp_data_Exp5_fig4_Ca_uM_Base_200sec.csv"
 sim_manager.load_experimental_data(csv_exp_file)
-
-param_init_vals = sim_manager.get_init_param_vals()
+# Get initial parameter values from the model and print them
+param_init_vals = sim_manager.get_init_param_vals(sim_manager.call_param_names)
 param_names = sim_manager.call_param_names
 print("Initial parameter values:")
 for name, val in zip(param_names, param_init_vals):
     print(f"{name}: {val}", end="  ")
 print()  # move to next line after printing all
 
+
+# Get initial variable values from the model and print them
+vari_init_vals  = sim_manager.get_init_param_vals(sim_manager.call_var_names)
+vari_names = sim_manager.call_var_names
+print("Initial vari values:")
+for name, val in zip(vari_names,vari_init_vals):
+    print(f"{name}: {val}", end="  ")
+print()  # move to next line after printing all
 
 # Define custom multipliers for min and max bound per parameter
 lower_multipliers = [
@@ -164,7 +173,6 @@ def optimization_cost(params):
 
 # Run the optimizer
 options = {'disp': True, 'maxiter': 100}
-
 res = minimize(
     optimization_cost,
     param_init_vals,

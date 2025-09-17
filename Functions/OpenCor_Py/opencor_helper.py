@@ -12,7 +12,6 @@ class SimulationHelper():
 
         # TODO comment this out
         # self.resource_module = import_module('psutil')
-
         self.cellml_path = cellml_path  # path to cellml file
         self.dt = dt # time step
         self.stop_time = pre_time + sim_time  # full time of simulation
@@ -35,8 +34,22 @@ class SimulationHelper():
         self.data.set_point_interval(self.dt)  # time interval for data storage
         self.data.set_starting_point(0)
         self.data.set_ending_point(self.stop_time)
-        self.tSim = np.linspace(pre_time, self.stop_time, self.n_steps + 1) # time values for stored part of simulation
-
+        self.tSim = np.linspace(pre_time, self.stop_time, self.n_steps + 1) # time values for stored part of simulation      
+     
+    # --------------------------------
+    '''
+    def get_init_state_vals(self, state_names):
+        vari_init_vals = {}
+        for name in state_names:
+            #print(' states', self.simulation.model().states())
+            if name in self.simulation.model().states():              
+                vari_init_vals[name.split('/')[-1]] = self.simulation.model().states()[name].value
+                print(f"State {name} : {vari_init_vals[name.split('/')[-1]]}")
+            else:
+                print(f"State {name} not found in the model")
+                vari_init_vals[name.split('/')[-1]] = 0.0
+        return vari_init_vals
+    '''
     # inner psutil function # TODO only needed for memory checking 
     def process_memory(self):
         process = self.resource_module.Process(os.getpid())
@@ -121,8 +134,9 @@ class SimulationHelper():
                     print("Algebraic:", list(self.simulation.results().algebraic().keys()))
                     print("Constants:", list(self.data.constants().keys()))
                     print('Exiting')
+                    print('exit 3')
                     sys.exit()
-
+                    
 
         if flatten:
             results = [item for sublist in results for item in sublist]
@@ -130,7 +144,33 @@ class SimulationHelper():
 
     def return_model_params(self):
         return [self.data.states(), self.data.constants()]
+    
+#--------------------------------------------
+    '''
+    def get_init_state_vals(self, state_names):
+        """
+        Fetch initial values of given states from the CellML model
+        Returns a dictionary {state_name: value}
+       """
+        vari_init_vals = {}
+        print(' states', self.simulation.results().states())
 
+        for name in state_names:
+            if name in self.simulation.results().states():
+               val = self.simulation.results().states()[name]
+            #    print( name, val.values())
+            #    print(f'name={name}, val={val.value()}')
+               if (val is None) or (val.value() is None):
+                   print(f"Error: state variable '{name}' has no values")
+                   sys.exit()
+            #    # Take the first value (initial)
+            #    vari_init_vals[name.split('/')[-1]] = val.values()[0]
+            else:
+                print(f"State '{name}' not found in the model")
+                sys.exit()
+        return vari_init_vals
+        '''
+#--------------------------------------------
     def get_init_param_vals(self, param_names):
         param_init = []
         for JJ, param_name_or_list in enumerate(param_names):
@@ -147,7 +187,9 @@ class SimulationHelper():
                         print([name for name in self.data.states()])
                         print('the constants are:')
                         print([name for name in self.data.constants()])
+                        print('exit 4')
                         sys.exit()
+                        
             else:
                 param_name = param_name_or_list
                 if param_name in self.data.states():
@@ -160,6 +202,7 @@ class SimulationHelper():
                     print([name for name in self.data.states()])
                     print('the constants are:')
                     print([name for name in self.data.constants()])
+                    print ('exit 5')
                     sys.exit()
 
         return param_init
@@ -179,8 +222,8 @@ class SimulationHelper():
                         print([name for name in self.data.states()])
                         print('the constants are:')
                         print([name for name in self.data.constants()])
+                        print('exit 6')
                         sys.exit()
-
             else:
                 param_name = param_name_or_list
                 if param_name in self.data.states():
@@ -193,6 +236,7 @@ class SimulationHelper():
                     print([name for name in self.data.states()])
                     print('the constants are:')
                     print([name for name in self.data.constants()])
+                    print ('exit 7')
                     sys.exit()
 
     def modify_params_and_run_and_get_results(self, param_names, mod_factors, obs_names, absolute=False):

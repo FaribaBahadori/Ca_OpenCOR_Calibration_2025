@@ -38,7 +38,8 @@
     </component>
     <component name="asm_ca">
         <variable name="time" public_interface="in" units="second"/>
-        <variable initial_value="0.116477" name="Ca_in_SMC" public_interface="out" units="uM"/>
+        <variable initial_value="Ca_in_SMC0" name="Ca_in_SMC" public_interface="out" units="uM"/>
+        <variable initial_value="0.116477" name="Ca_in_SMC0" public_interface="out" units="uM"/>
         <!--/ var Ca_in_SMC: uM {pub: out};-->
         <!--       var Ca_in_SMC_dig: uM {pub: out};-->
         <variable name="J_release" public_interface="out" units="uM_per_sec"/>
@@ -50,7 +51,8 @@
         <variable name="k_RyR" public_interface="in" units="per_sec"/>
         <variable name="P_RyR" public_interface="out" units="dimensionless"/>
         <variable name="Jer" public_interface="in" units="per_sec"/>
-        <variable initial_value="27.5" name="Ca_SR" public_interface="out" units="uM"/>
+        <variable initial_value="Ca_SR0" name="Ca_SR" public_interface="out" units="uM"/>
+        <variable initial_value="27.5" name="Ca_SR0" public_interface="out" units="uM"/>
         <variable initial_value="0" name="p_agonist" public_interface="out" units="uM"/>
         <variable name="k_ryr0" public_interface="in" units="dimensionless"/>
         <variable name="k_ryr1" public_interface="in" units="dimensionless"/>
@@ -64,7 +66,8 @@
         <variable name="alpha1" public_interface="in" units="dimensionless"/>
         <variable name="alpha2" public_interface="in" units="per_sec"/>
         <variable name="F" public_interface="in" units="C_per_mol"/>
-        <variable initial_value="0.38" name="y" public_interface="out" units="dimensionless"/>
+        <variable initial_value="y0" name="y" public_interface="out" units="dimensionless"/>
+        <variable initial_value="0.38" name="y0" public_interface="out" units="dimensionless"/>
         <variable name="phi1" public_interface="out" units="per_sec"/>
         <variable name="phi2" public_interface="out" units="per_sec"/>
         <variable name="l_1" public_interface="in" units="per_uM_per_sec"/>

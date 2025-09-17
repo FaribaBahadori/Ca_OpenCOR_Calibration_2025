@@ -17,7 +17,7 @@ if sympy_path not in sys.path:
 # ----------------------------
 # 1. Adding OpenCor_Py folder inside this project (to path for OpenCOR Python)
 sys.path.append(os.path.join(os.path.dirname(__file__), "OpenCor_Py"))
-from opencor_helper import SimulationHelper  #Importing helper modules from local OpenCor_Py
+from .OpenCor_Py.opencor_helper import SimulationHelper  #Importing helper modules from local OpenCor_Py
 # from Functions.OpenCor_Py.opencor_helper import SimulationHelper (Importing helper modules from Functions folder, if needed)
 
 # 2. Adding the project root to sys.path (to find Functions folder modules), so Python finds Functions and steady_state_solver
@@ -26,7 +26,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 # ----------------------------
 # Importing helper modules
-from Functions.steady_state_solver import solve_initial_vars
+from Functions.steady_state_solver import steady_state_smc
 
 # Matplotlib backend for saving figures without display
 matplotlib.use('Agg')
@@ -43,7 +43,7 @@ class SimulationManager:
                  output_names = ['SMC_Par/Ca_in_SMC'],
                  cal_param_names=['SMC_Par/delta_SMC', 'SMC_Par/k_RyR'
                                   ],
-                 var_names=['SMC_Par/Ca_in_SMC', 'SMC_Par/Ca_SR', 'SMC_Par/y'],
+                 cal_var_names=['SMC_Par/Ca_in_SMC0', 'SMC_Par/Ca_SR0', 'SMC_Par/y0'],
                  feature_names=['max_Ca', 'time_constant_to_max', 'time_to_return_to_baseline']):
 
         # Default solver parameters if not provided
@@ -54,11 +54,12 @@ class SimulationManager:
         self.sim_time = sim_time + pre_time
         self.output_names = output_names
         self.call_param_names = cal_param_names
-        self.var_names = var_names
+        self.call_var_names = cal_var_names
         self.feature_names = feature_names
-
+        
         self.sim_object = SimulationHelper(model_path, dt, sim_time, solver_info=solver_info, pre_time=pre_time)
-
+        
+        
         self.stim_params_names = ['Environment/tau']
         self.stim_param_vals = [tau]
         self.sim_object.set_param_vals(self.stim_params_names, self.stim_param_vals)
@@ -85,25 +86,47 @@ class SimulationManager:
 
 
     def run_and_get_results(self, param_vals):
-        self.sim_object.set_param_vals(self.call_param_names, param_vals)
+        print('test 1')
 
-        param_dict = {name: val for name, val in zip(self.call_param_names, param_vals)}
-        outputs = self.sim_object.get_results(self.var_names, flatten=True)
-        if outputs is None or len(outputs) == 0:
-            # Fallback: initialize with default small values
-            init_vals = {var.split('/')[-1]: 0.0 for var in self.var_names}
-        else:
-            init_vals = {var.split('/')[-1]: val for var, val in zip(self.var_names, outputs)}
-        
-        self.sim_object.set_param_vals(
-            self.var_names,
-            [Ca_in_SMC_val, Ca_SR_val, y_val]
+        self.sim_object.set_param_vals(self.call_param_names, param_vals)
+        print('test 2')
+
+        # Get initial values directly from the model (before running simulation)
+        vari_init_vals_list = self.sim_object.get_init_param_vals(self.call_var_names)
+        vari_init_vals = dict(zip([name.split('/')[-1] for name in self.call_var_names], vari_init_vals_list))
+
+        # now you can do:
+        Ca_in_SMC_val = vari_init_vals['Ca_in_SMC0']
+        Ca_SR_val     = vari_init_vals['Ca_SR0']
+        y_val         = vari_init_vals['y0']
+        print('test 3=vari_init_vals')
+
+
+        # Get initial parameter values as a list
+        param_vals_list = self.sim_object.get_init_param_vals(self.call_param_names)
+
+        # Convert to dictionary: {'SMC_Par/delta_SMC': 0.05, ...}
+        param_vals_dict = dict(zip(self.call_param_names, param_vals_list))
+
+        # Update initial values using steady-state function
+        Ca_in_SMC_val, Ca_SR_val, y_val = steady_state_smc(
+            params=param_vals_dict,
+            vari_init_vals={'Ca_in_SMC0': Ca_in_SMC_val, 'Ca_SR0': Ca_SR_val, 'y0': y_val}
         )
 
-        self.sim_object.reset_states()
-        out = self.sim_object.run()
+        # Update the simulation object with these steady-state values
+        self.sim_object.set_param_vals(
+            self.call_var_names,
+            [Ca_in_SMC_val, Ca_SR_val, y_val]
+         )
+        self.sim_object.reset_states()  # reset simulation with these states
+        
+        
+        # Run simulation
+        success = self.sim_object.run()
 
-        if out:
+        if success:
+
             yy = self.sim_object.get_results(self.output_names)
             t = self.sim_object.tSim - self.pre_time
         else:
@@ -161,11 +184,8 @@ class SimulationManager:
             print(f"Current params: {param_vals_current}, Cost (MSE): {mse:.6f}")
         return mse
 
-
-
-
     def Likelihood_cost_function(self, param_vals_current, z_hat, param_idx, current_value, verbose=True):
-        theta_full = np.insert(param_vals_currefvnt, param_idx, current_value)
+        theta_full = np.insert(param_vals_current, param_idx, current_value)
         if verbose:
             print(f"Running simulation with parameters: {theta_full}")
 
@@ -179,8 +199,9 @@ class SimulationManager:
             print(f"Current parameters: {theta_full}, Model output: {z_model}, Ground truth: {z_hat}, cost: {cost}")
 
         return cost
-    def get_init_param_vals(self):
-        return self.sim_object.get_init_param_vals(self.call_param_names)
+    def get_init_param_vals(self, init_names):
+        return self.sim_object.get_init_param_vals(init_names)
+    
         
 
     def plot_model_out_and_experimental_data(self, var_data, t, output_file_path):

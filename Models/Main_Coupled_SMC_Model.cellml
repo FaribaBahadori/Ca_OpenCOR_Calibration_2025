@@ -38,8 +38,10 @@
     </component>
     <component name="SMC_Par">
         <variable name="Ca_in_SMC" public_interface="in" units="uM"/>
+        <variable name="Ca_in_SMC0" public_interface="in" units="uM"/>
         <!--        var Ca_in_SMC_dig: uM {pub: in};-->
         <variable name="Ca_SR" public_interface="in" units="uM"/>
+        <variable name="Ca_SR0" public_interface="in" units="uM"/>
         <variable name="Ca_t" public_interface="in" units="uM"/>
         <variable name="I_ca" public_interface="in" units="uA_per_cmsq"/>
         <variable name="J_release" public_interface="in" units="uM_per_sec"/>
@@ -64,6 +66,7 @@
         <variable name="t2_KCL" public_interface="in" units="second"/>
         <variable name="Ca_E" public_interface="in" units="uM"/>
         <variable name="y" public_interface="in" units="dimensionless"/>
+        <variable name="y0" public_interface="in" units="dimensionless"/>
         <variable name="phi1" public_interface="in" units="per_sec"/>
         <variable name="phi2" public_interface="in" units="per_sec"/>
         <variable name="l_1" public_interface="in" units="per_uM_per_sec"/>
@@ -851,8 +854,10 @@
     <connection>
         <map_components component_1="asm_ca" component_2="SMC_Par"/>
         <map_variables variable_1="Ca_in_SMC" variable_2="Ca_in_SMC"/>
-        <!--        vars Ca_in_SMC_dig and Ca_in_SMC_dig;-->
+        <map_variables variable_1="Ca_in_SMC0" variable_2="Ca_in_SMC0"/>
+        <!-- vars Ca_in_SMC_dig and Ca_in_SMC_dig;-->
         <map_variables variable_1="Ca_SR" variable_2="Ca_SR"/>
+        <map_variables variable_1="Ca_SR0" variable_2="Ca_SR0"/>
         <map_variables variable_1="Ca_t" variable_2="Ca_t"/>
         <map_variables variable_1="p_agonist" variable_2="p_agonist"/>
         <map_variables variable_1="J_release" variable_2="J_release"/>
@@ -873,6 +878,7 @@
         <map_variables variable_1="t2_KCL" variable_2="t2_KCL"/>
         <map_variables variable_1="Ca_E" variable_2="Ca_E"/>
         <map_variables variable_1="y" variable_2="y"/>
+        <map_variables variable_1="y0" variable_2="y0"/>
         <map_variables variable_1="phi1" variable_2="phi1"/>
         <map_variables variable_1="phi2" variable_2="phi2"/>
         <map_variables variable_1="L1" variable_2="L1"/>
