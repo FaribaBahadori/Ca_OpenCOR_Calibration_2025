@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.optimize import fsolve
 from math import exp
+import warnings
+from scipy.optimize import OptimizeWarning
 
 def steady_state_smc(params, vari_init_vals):
     """
@@ -15,22 +17,35 @@ def steady_state_smc(params, vari_init_vals):
     p = {k.split('/')[-1]: v for k, v in params.items()}
 
     # 1) Solve Eq1 for Ca_in_SMC0
+    A = -p['alpha1'] * p['gca'] * p['V0'] * p['Vp'] / (2 * p['F'])
+    B = (
+        p['alpha0'] * (1 - exp(-p['V0']*p['F']/(p['R']*p['T']))) *
+        (1 + exp(-(p['V0'] - p['Vm'])/p['km']))**2
+        + (p['alpha1']*p['gca']*p['V0']*p['Vp']*p['Ca_E']*exp(-p['V0']*p['F']/(p['R']*p['T']))/(2*p['F']))
+    )
     def f_eq(c):
         # c is array-like, fsolve passes it as [c]
         Ca_in_SMC0 = c[0]
         val = (
-            (-p['alpha1'] * p['gca'] * p['V0'] * p['Vp'] / (2 * p['F'])) * Ca_in_SMC0**5
-            + (
-                p['alpha0'] * (1 - exp(-p['V0']*p['F']/(p['R']*p['T']))) *
-                (1 + exp(-(p['V0'] - p['Vm'])/p['km']))**2
-                + (p['alpha1']*p['gca']*p['V0']*p['Vp']*p['Ca_E']*exp(-p['V0']*p['F']/(p['R']*p['T']))/(2*p['F']))
-            ) * Ca_in_SMC0**4
+            A * Ca_in_SMC0**5
+            + B * Ca_in_SMC0**4
             + p['alpha0']*(1 - exp(-p['V0']*p['F']/(p['R']*p['T']))) *
               (1 + exp(-(p['V0'] - p['Vm'])/p['km']))**2 * p['Kp']**4
         )
         return val
 
-    Ca_in_SMC0_val = fsolve(f_eq, np.array([vari_init_vals['Ca_in_SMC0']]))[0]
+    # Compute a lower bound estimate for Ca_in_SMC0
+    C0 = max(vari_init_vals['Ca_in_SMC0'], 4*B/(5*A))  # your known lower bound
+
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", OptimizeWarning)
+    try:
+        # Solve Eq1 for Ca_in_SMC0 using the improved initial guess
+        Ca_in_SMC0_val = fsolve(f_eq, np.array([C0]))[0]
+    except OptimizeWarning:
+        print("fsolve did not converge for this parameter set.")
+        return None, None, None  # skip this run
 
     # 2) Solve Eq2 for Ca_SR
     def g_eq(s):

@@ -89,14 +89,14 @@ lower_multipliers = [
     1,1,1,1,1,          # l_m1, l_m2, l_m3, l_m4, l_m5
     1,1,                # p_agonist, Ca_E
     1,1,                # t1_KCL, t2_KCL
-    1, 1, 1,            # alpha0, alpha1, alpha2
-    1, 1,               # V0, V1
-    1, 1, 1, 1,         # k_ryr0, k_ryr1, k_ryr2, k_ryr3
-    1, 1, 1,            # Vm, km, gca
+    0.1, 0.1, 1,            # alpha0, alpha1, alpha2
+    1, 0.7,               # V0, V1
+    0.1, 0.1, 0.1, 0.1,         # k_ryr0, k_ryr1, k_ryr2, k_ryr3
+    0.7, 0.1, 0.1,            # Vm, km, gca
     1, 1, 1,            # F, R, T
-    1, 1, 1,            # Jer, Ve, Ke
+    0.1, 0.1, 0.1,            # Jer, Ve, Ke
     1, 1, 1,       # Vp, Kp, gamma
-    0.5, 1, 1         # delta_SMC, k_RyR, k_ipr
+    0.1, 0.1, 1         # delta_SMC, k_RyR, k_ipr
 ]
 
 upper_multipliers = [
@@ -104,14 +104,14 @@ upper_multipliers = [
     1,1,1,1,1,         # l_m1, l_m2, l_m3, l_m4, l_m5
     1,1,               # p_agonist, Ca_E
     1,1,               # t1_KCL, t2_KCL
-    2, 1, 1,           # alpha0, alpha1, alpha2
-    1, 1,              # V0, V1
-    1, 1, 1, 1,        # k_ryr0, k_ryr1, k_ryr2, k_ryr3
-    1, 1, 1,           # Vm, km, gca
+    2, 10, 1,           # alpha0, alpha1, alpha2
+    1, 1.34,              # V0, V1
+    10, 10, 10, 10,        # k_ryr0, k_ryr1, k_ryr2, k_ryr3
+    1.2, 10, 10,           # Vm, km, gca
     1, 1, 1,           # F, R, T
-    1, 1, 1,           # Jer, Ve, Ke
-    1, 1, 1,          # Vp, Kp, gamma
-    1, 1, 1          # delta_SMC, k_RyR, k_ipr
+    2, 10, 10,           # Jer, Ve, Ke
+    10, 10, 10,          # Vp, Kp, gamma
+    10, 10, 1          # delta_SMC, k_RyR, k_ipr
 ]
 param_bounds = [
     (min(l * val, u * val), max(l * val, u * val))
