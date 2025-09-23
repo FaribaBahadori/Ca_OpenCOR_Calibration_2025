@@ -95,11 +95,11 @@ class SimulationManager:
         vari_init_vals_list = self.sim_object.get_init_param_vals(self.call_var_names)
         vari_init_vals = dict(zip([name.split('/')[-1] for name in self.call_var_names], vari_init_vals_list))
 
-        # now you can do:
+
         Ca_in_SMC_val = vari_init_vals['Ca_in_SMC0']
         Ca_SR_val     = vari_init_vals['Ca_SR0']
         y_val         = vari_init_vals['y0']
-        print('test 3=vari_init_vals')
+        print(f'test 3: vari_init_vals={vari_init_vals}')
 
 
         # Get initial parameter values as a list
@@ -181,7 +181,8 @@ class SimulationManager:
         mse = np.mean((np.array(Ca_in_SMC_matched) - np.array(exp_values_matched))**2)
 
         if verbose:
-            print(f"Current params: {param_vals_current}, Cost (MSE): {mse:.6f}")
+            print(f"Cost (MSE): {mse:.6f}")
+            ## print(f"Current params: {param_vals_current}, Cost (MSE): {mse:.6f}")
         return mse
 
     def Likelihood_cost_function(self, param_vals_current, z_hat, param_idx, current_value, verbose=True):

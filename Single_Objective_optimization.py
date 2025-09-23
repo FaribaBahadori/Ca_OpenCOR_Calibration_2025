@@ -12,7 +12,7 @@ import datetime
 
 # Global simulation time settings
 SIM_TIME = 2200
-PRE_TIME = 1
+PRE_TIME = 0
 
 os.chdir(r"C:/Fariba_2025/Ca_OpenCOR_Calibration_2025")
 sys.path.insert(0, os.getcwd())
@@ -22,6 +22,7 @@ print("Script started running!")
 from scipy.optimize import minimize
 
 from Functions.model_utils import SimulationManager
+from Functions.plot_eqs import plot_eqs
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -69,7 +70,8 @@ sim_manager.load_experimental_data(csv_exp_file)
 # Get initial parameter values from the model and print them
 param_init_vals = sim_manager.get_init_param_vals(sim_manager.call_param_names)
 param_names = sim_manager.call_param_names
-print("Initial parameter values:")
+'''
+## print("Initial parameter values:")
 for name, val in zip(param_names, param_init_vals):
     print(f"{name}: {val}", end="  ")
 print()  # move to next line after printing all
@@ -78,11 +80,11 @@ print()  # move to next line after printing all
 # Get initial variable values from the model and print them
 vari_init_vals  = sim_manager.get_init_param_vals(sim_manager.call_var_names)
 vari_names = sim_manager.call_var_names
-print("Initial vari values:")
+## print("Initial vari values:")
 for name, val in zip(vari_names,vari_init_vals):
     print(f"{name}: {val}", end="  ")
 print()  # move to next line after printing all
-
+'''
 # Define custom multipliers for min and max bound per parameter
 lower_multipliers = [
     1,1,1,1,1,          # l_1, l_2, l_3, l_4', l_5
@@ -153,7 +155,8 @@ def optimization_cost(params):
 
     # cost = MSE between *matched* model and experimental data
     cost = np.mean((np.array(matched_model_vals) - np.array(matched_exp_vals)) ** 2)
-    print(f" Cost: {cost:.6f}, Params: {params}")
+    ## print(f" Cost: {cost:.6f}, Params: {params}")
+    print(f" Cost: {cost:.6f}")
 
     # Save step results to run2 folder as CSV
     step_file = os.path.join(output_file_path, "optimization_progress.csv")
@@ -236,3 +239,18 @@ sim_manager.pre_time = plot_pre_time
 
 outputs_full, t_full = sim_manager.run_and_get_results(optimal_params)
 sim_manager.plot_model_out_and_experimental_data(outputs_full, t_full, output_plot_path_full)
+
+# --- Prepare folder for plots ---
+plot_folder = os.path.join(os.path.dirname(output_file_path), "run22")
+if not os.path.exists(plot_folder):
+    os.makedirs(plot_folder)
+
+# --- Prepare input dictionaries for plot_eqs ---
+optimal_params_dict = {name: val for name, val in zip(param_names, optimal_params)}
+vari_init_vals = sim_manager.get_init_param_vals(sim_manager.call_var_names)
+vari_init_vals_dict = {name: val for name, val in zip(sim_manager.call_var_names, vari_init_vals)}
+
+# --- Call plot_eqs for optimized parameter set ---
+print(f"Current params: {optimal_params_dict}, Cost (MSE): {res.fun:.6f}")
+plot_eqs(optimal_params_dict, vari_init_vals_dict, plot_folder)
+
