@@ -111,7 +111,7 @@ class SimulationManager:
         # Update initial values using steady-state function
         Ca_in_SMC_val, Ca_SR_val, y_val = steady_state_smc(
             params=param_vals_dict,
-            vari_init_vals={'Ca_in_SMC0': Ca_in_SMC_val, 'Ca_SR0': Ca_SR_val, 'y0': y_val}
+            vari_init_vals={'Ca_in_SMC0': Ca_in_SMC_val, 'Ca_SR0': Ca_SR_val, 'y0': y_val}, return_extra=False
         )
 
         # Update the simulation object with these steady-state values
