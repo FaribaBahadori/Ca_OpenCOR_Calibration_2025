@@ -28,17 +28,26 @@ def plot_eqs(params, vari_init_vals, run_dir, row=None):
     # -------------------------------
     # Plot 1: f_eq(Ca_in_SMC0)
     # -------------------------------
-    A = -p['alpha1'] * p['gca'] * p['V0'] * p['Vp'] / (2 * p['F'])
-    B = (p['alpha0'] * (1 - exp(-p['V0']*p['F']/(p['R']*p['T']))) *
-            (1 + exp(-(p['V0'] - p['Vm'])/p['km']))**2
-            + (p['alpha1']*p['gca']*p['V0']*p['Vp']*p['Ca_E']
-               * exp(-p['V0']*p['F']/(p['R']*p['T']))/(2*p['F'])))
-    D = (p['alpha0']*(1 - exp(-p['V0']*p['F']/(p['R']*p['T']))) * (1 + exp(-(p['V0'] - p['Vm'])/p['km']))**2 * p['Kp']**4)
-    c00 =(-4*B/(5*A))
+    vari_init_vals = {k.split('/')[-1]: v for k, v in vari_init_vals.items()}
+    clb = -10  # Physiological lower bound for Ca_in_SMC0
+    cub = 10  # Physiological upper bound for Ca_in_SMC0
+    # 1) Solve Eq1 for Ca_in_SMC0
+    #  Coefficients for Eq1
+    B0 = p['Ca_E']*exp(-2*p['V0']*p['F']/(p['R']*p['T']))
+    B1 = ((p['alpha1'] * p['gca'] * p['V0']) / (2 * p['F']*(1 - exp(-2*p['V0']*p['F']/(p['R']*p['T']))) * (1 + exp(-(p['V0'] - p['Vm'])/p['km']))**2))
+    B2 = p['Vp']-p['alpha0']-B0*B1
+    B3 = B1 *p['Kp']**4
+    B4 = -(p['alpha0']+ B0*B1)*p['Kp']**4
+    e1 = 1 - exp(-p['V0']*p['F']/(p['R']*p['T']))
+    e2 = (1 + exp(-(p['V0'] - p['Vm'])/p['km']))**2
+
     def f_eq(c):
-        return (A * c**5 + B * c**4 + D)
+        # c is array-like, fsolve passes it as [c]
+        Ca_in_SMC = c
+        return B1 * Ca_in_SMC**5 + B2 * Ca_in_SMC**4 + B3 * Ca_in_SMC + B4
     
-    c_vals = np.linspace(int(-0.5*Ca_in_SMC0_val),int(1.1*Ca_in_SMC0_val),400)
+    
+    c_vals = np.linspace(int(-5*(Ca_in_SMC0_val)),int(5*(Ca_in_SMC0_val)),400)
     ## c_vals = np.linspace(min(-1*Ca_in_SMC0_val, 2*Ca_in_SMC0_val), max(-1*Ca_in_SMC0_val, 2*Ca_in_SMC0_val), 400)
 
     f_vals = [f_eq(c) for c in c_vals]
@@ -46,8 +55,8 @@ def plot_eqs(params, vari_init_vals, run_dir, row=None):
     plt.figure()
     plt.plot(c_vals, f_vals, label="f(c)")
     plt.axhline(0, color="k", linestyle="--")
-    plt.axvline(Ca_in_SMC0_val, color="r", linestyle=":", label=f"Ca_Root={Ca_in_SMC0_val:.4f}, f({Ca_in_SMC0_val:.4f})={f_eq(Ca_in_SMC0_val):.4f}, c_min={c00:.4f}")
-    plt.title(f"f(C)={A:.2f}*C^5 + {B:.2f}*C^4 + {D:.2f}")
+    plt.axvline(Ca_in_SMC0_val, color="r", linestyle=":", label=f"Ca_Root={Ca_in_SMC0_val:.4f}, f({Ca_in_SMC0_val:.4f})={f_eq(Ca_in_SMC0_val):.4f}")
+    plt.title(f"f(C)={B1:.2f}*C^5 + {B2:.2f}*C^4 + {B3:.2f}*C + {B4:.2f}")
     plt.xlabel("Ca_in_SMC")
     plt.ylabel("f(c)")
     plt.legend()
@@ -74,7 +83,8 @@ def plot_eqs(params, vari_init_vals, run_dir, row=None):
                 - (term1 + p['Jer']*Ca_in_SMC0 + term2)*s**4
                 + p['Jer']*(p['k_ryr3']**4)*s
                 - (p['k_ryr3']**4)*(p['Jer'] + term2))
-    s_vals = np.linspace(min(int(-2*Ca_SR0_val),int(2*Ca_SR0_val)), max(int(-2*Ca_SR0_val),int(2*Ca_SR0_val)), 400)
+    ## s_vals = np.linspace(min(int(-2*Ca_SR0_val),int(2*Ca_SR0_val)), max(int(-2*Ca_SR0_val),int(2*Ca_SR0_val)), 400)
+    s_vals = np.linspace(-100, 100, 400)
     ## s_vals = np.linspace(min(-1*Ca_SR0_val, 2*Ca_SR0_val), max(-1*Ca_SR0_val, 2*Ca_SR0_val), 400)
     g_vals = [g_eq(s) for s in s_vals]
 
@@ -97,7 +107,8 @@ def plot_eqs(params, vari_init_vals, run_dir, row=None):
     # -------------------------------
     def y_func(c0):
         return (p['l_4'] * c0) / (p['l_4'] * c0 + p['l_m4'])
-    c_vals = np.linspace(-y0_val, 2*y0_val, 400)
+    ## c_vals = np.linspace(-y0_val, 2*y0_val, 400)
+    c_vals = np.linspace(-3, 3, 400)
     ## c_vals = np.linspace(min(-1*Ca_in_SMC0_val, 2*Ca_in_SMC0_val), max(-1*Ca_in_SMC0_val, 2*Ca_in_SMC0_val), 400)
     y_vals = [y_func(c) for c in c_vals]
 

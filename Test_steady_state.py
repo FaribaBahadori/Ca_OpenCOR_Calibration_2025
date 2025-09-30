@@ -71,13 +71,13 @@ results_list = []
 # Loop over parameter sets
 for i, (params, init_vals) in enumerate(parameter_sets, start=1):
     print(f"\n--- Running steady state for row {i} ---")
-    Ca_in_SMC0, Ca_SR0, y0, Eq1_c00, Eq1_A, Eq1_B, Eq1_B1, Eq1_B2, Eq1_e1, Eq1_e2, Eq1_D, Eq2_E, Eq2_H, Eq2_K, Eq2_M, term1, term2 = steady_state_smc(params, init_vals, return_extra=True)
+    Ca_in_SMC0, Ca_SR0, y0, Eq1_B0, Eq1_B1, Eq1_B2, Eq1_B3, Eq1_B4, Eq1_e1, Eq1_e2, Eq2_E, Eq2_H, Eq2_K, Eq2_M, term1, term2 = steady_state_smc(params, init_vals, return_extra=True)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
     result_row = {
         "Timestamp": timestamp, 
         "Row": i,
         "SS_Ca_in_SMC0": Ca_in_SMC0, "SS_Ca_SR0": Ca_SR0,"SS_y0": y0,
-        "Eq1_c00": Eq1_c00, "Eq1_A": Eq1_A, "Eq1_B": Eq1_B, "Eq1_B1": Eq1_B1, "Eq1_B2": Eq1_B2, "Eq1_e1": Eq1_e1, "Eq1_e2": Eq1_e2, "Eq1_D": Eq1_D, 
+        "Eq1_B0": Eq1_B0, "Eq1_B1": Eq1_B1, "Eq1_B2": Eq1_B2, "Eq1_B3": Eq1_B3, "Eq1_B4": Eq1_B4, "Eq1_e1": Eq1_e1, "Eq1_e2": Eq1_e2, 
         "Eq2_E": Eq2_E, "Eq2_H": Eq2_H, "Eq2_K": Eq2_K, "Eq2_M": Eq2_M,
         "term1": term1, "term2": term2}
 
