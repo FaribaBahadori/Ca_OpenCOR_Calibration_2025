@@ -13,6 +13,7 @@ import datetime
 # Global simulation time settings
 SIM_TIME = 2200
 PRE_TIME = 0
+run_counter = 0
 
 os.chdir(r"C:/Fariba_2025/Ca_OpenCOR_Calibration_2025")
 sys.path.insert(0, os.getcwd())
@@ -121,6 +122,9 @@ param_bounds = [
 ]
 
 def optimization_cost(params):
+    global run_counter
+    run_counter += 1
+    print(f"\n--- Run #{run_counter} ---")   # <-- shows which parameter set is being tried
     outputs, t = sim_manager.run_and_get_results(params)
     Ca_in_SMC = np.squeeze(outputs[0])   # model output
 

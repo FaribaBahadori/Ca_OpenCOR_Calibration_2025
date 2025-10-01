@@ -75,7 +75,7 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     Ca_in_SMC0 = Ca_in_SMC0_val
 
     slb = 0  # physiological lower bound for Ca_SR
-    sub = 50  # physiological upper bound for Ca_SR
+    sub = 100  # physiological upper bound for Ca_SR
 
     # --- 2) Solve Eq2 for Ca_SR ---
     term1 = p['k_RyR'] * (p['k_ryr0'] + (p['k_ryr1'] * Ca_in_SMC0**3) / (p['k_ryr2']**3 + Ca_in_SMC0**3))
@@ -95,7 +95,7 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     with warnings.catch_warnings():
         warnings.simplefilter("error", OptimizeWarning) # treat as error
         try:
-            s_vals = np.linspace(slb, sub, 1000)  # search range, can adjust upper limit if needed
+            s_vals = np.linspace(slb, sub, 100000)  # search range, can adjust upper limit if needed
             g_vals = np.array([g_eq([s]) for s in s_vals])
             crossings = np.where(np.diff(np.sign(g_vals)))[0]
             num_roots = len(np.where(np.diff(np.sign(g_vals)))[0])
@@ -105,7 +105,7 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
                 root = fsolve(g_eq, [s_vals[idx]])[0]
                 #avoid duplicates s and check physiological range
                 if not any(np.isclose(root, r, atol=1e-6) for r in roots):
-                    if 0 < root < 50:  # physiological range check
+                    if slb < root < sub:  # physiological range check
                         roots.append(root)
                        
             if roots:
