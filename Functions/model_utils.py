@@ -37,7 +37,7 @@ class SimulationManager:
                  model_path="./Models/Main_Coupled_SMC_Model.cellml",
                  dt=1,
                  sim_time=2000,
-                 pre_time=266,
+                 pre_time=0,
                  solver_info=None,
                  tau=0,
                  output_names = ['SMC_Par/Ca_in_SMC'],
@@ -85,7 +85,7 @@ class SimulationManager:
         print(f" Loaded {len(times)} experimental points from {csv_Exp_file}")
 
 
-    def run_and_get_results(self, param_vals):
+    def run_and_get_results(self, param_vals, SS_vals=False):
         print('test 1')
 
         self.sim_object.set_param_vals(self.call_param_names, param_vals)
@@ -135,7 +135,10 @@ class SimulationManager:
             t = np.arange(0, self.sim_time, self.sim_object.dt) - self.pre_time
 
         self.sim_object.reset_and_clear()
-        return yy, t
+        if SS_vals:
+            return  yy, t, Ca_in_SMC_val, Ca_SR_val, y_val
+        else:
+            return yy, t
 
     def feature_extraction(self, var_data, t):
         outputs = np.squeeze(var_data) * 1000
@@ -158,7 +161,7 @@ class SimulationManager:
 
     # Cost function for optimisation
     def cost_function(self, param_vals_current, z_hat=None, verbose=True):
-        sim_results, t = self.run_and_get_results(param_vals_current)
+        sim_results, t = self.run_and_get_results(param_vals_current, SS_vals=False)
         Ca_in_SMC = np.squeeze(sim_results[0])      # model output
 
         # --- REPLACE HERE ---
@@ -190,7 +193,7 @@ class SimulationManager:
         if verbose:
             print(f"Running simulation with parameters: {theta_full}")
 
-        outputs, t = self.run_and_get_results(theta_full)
+        outputs, t = self.run_and_get_results(theta_full, SS_vals=False)
         z_hat = np.atleast_1d(z_hat)
         z_model = self.feature_extraction(outputs, t)
 
@@ -201,9 +204,8 @@ class SimulationManager:
 
         return cost
     def get_init_param_vals(self, init_names):
-        return self.sim_object.get_init_param_vals(init_names)
-    
-        
+        return self.sim_object.get_init_param_vals(init_names)  
+
 
     def plot_model_out_and_experimental_data(self, var_data, t, output_file_path):
         Ca_in_SMC = np.squeeze(var_data[0])

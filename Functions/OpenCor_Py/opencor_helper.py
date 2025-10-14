@@ -76,6 +76,13 @@ class SimulationHelper():
             self.simulation.release_all_values()
             self.simulation.clear_results()
             return False
+        except Exception as e:
+            print(f"CellML run error: {e}")
+            print('restarting simulation object')
+            self.simulation.reset()
+            self.simulation.release_all_values()
+            self.simulation.clear_results()
+            return False
 
         return True
 

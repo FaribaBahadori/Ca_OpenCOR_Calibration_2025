@@ -101,8 +101,8 @@
         <variable name="Ca_t" public_interface="out" units="uM"/>
         <!--      var t_ago1: second {init: 50, pub: out};
       var p_ago1: uM {init: 0, pub: out};-->
-        <variable initial_value="266" name="t1_KCL" public_interface="out" units="second"/>
-        <variable initial_value="2066" name="t2_KCL" public_interface="out" units="second"/>
+        <variable initial_value="2" name="t1_KCL" public_interface="out" units="second"/>
+        <variable initial_value="1802" name="t2_KCL" public_interface="out" units="second"/>
         <variable initial_value="-60" name="V1" public_interface="out" units="mV"/>
         <!---54 mV==20mM KCL-->
         <variable initial_value="-60" name="V0" public_interface="out" units="mV"/>

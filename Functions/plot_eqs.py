@@ -84,7 +84,7 @@ def plot_eqs(params, vari_init_vals, run_dir, row=None):
                 + p['Jer']*(p['k_ryr3']**4)*s
                 - (p['k_ryr3']**4)*(p['Jer'] + term2))
     ## s_vals = np.linspace(min(int(-2*Ca_SR0_val),int(2*Ca_SR0_val)), max(int(-2*Ca_SR0_val),int(2*Ca_SR0_val)), 400)
-    s_vals = np.linspace(-100, 100, 400)
+    s_vals = np.linspace(-10000, 10000, 400)
     ## s_vals = np.linspace(min(-1*Ca_SR0_val, 2*Ca_SR0_val), max(-1*Ca_SR0_val, 2*Ca_SR0_val), 400)
     g_vals = [g_eq(s) for s in s_vals]
 

@@ -373,7 +373,7 @@
         <variable name="sqr_dif_stress" units="dimensionless"/>
         <variable initial_value="0" name="stress_d" public_interface="out" units="dimensionless"/>
         <variable name="time" public_interface="in" units="second"/>
-        <variable name="stress_d2" public_interface="out" units="dimensionless"/>
+        <!--        var stress_d2: dimensionless {pub: out};-->
         <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
                 <eq/>
@@ -406,31 +406,12 @@
                     <cn cellml:units="per_sec">1</cn>
                 </apply>
             </apply>
-            <apply>
-                <eq/>
-                <ci>stress_d2</ci>
-                <piecewise>
-                    <piece>
-                        <ci>stress_d</ci>
-                        <apply>
-                            <and/>
-                            <apply>
-                                <geq/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">266</cn>
-                            </apply>
-                            <apply>
-                                <lt/>
-                                <ci>time</ci>
-                                <cn cellml:units="second">2060</cn>
-                            </apply>
-                        </apply>
-                    </piece>
-                    <otherwise>
-                        <cn cellml:units="dimensionless">0</cn>
-                    </otherwise>
-                </piecewise>
-            </apply>
+            <!--        stress_d2 = sel
+            case (time >= 266{second}) and (time < 2060{second}):
+                stress_d;
+            otherwise:
+                0{dimensionless};
+        endsel;-->
             <apply>
                 <eq/>
                 <ci>stress_Index</ci>
@@ -647,6 +628,7 @@
                 </piecewise>
             </apply>
         </math>
+        <!--I should fix time period lated from 266-2060 to 0-1794-->
     </component>
     <component name="model_parameters1">
         <variable name="k1" public_interface="in" units="first_order_rate_constant"/>

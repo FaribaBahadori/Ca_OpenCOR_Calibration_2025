@@ -84,7 +84,7 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     H = - (term1 + p['Jer']*Ca_in_SMC0 + term2)
     K = p['Jer']*(p['k_ryr3']**4)
     M = - (p['k_ryr3']**4)*(p['Jer'] + term2)
- 
+    print (f"Coefficients in Eq2: E={E}, H={H}, K={K}, M={M}")
     def g_eq(s):
         # s is array-like, fsolve passes it as [s]
         Ca_SR = s[0]
