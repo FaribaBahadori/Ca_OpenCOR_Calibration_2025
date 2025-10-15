@@ -30,16 +30,17 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     e2 = (1 + exp(-(p['V0'] - p['Vm'])/p['km']))**2
 
     def f_eq(c):
-        # c is array-like, fsolve passes it as [c]
         Ca_in_SMC = c[0]
         val = (
-            B1 * Ca_in_SMC**5
-            + B2 * Ca_in_SMC**4
-            + B3 * Ca_in_SMC
-            + B4
-    
+            p['alpha0']
+            - (p['alpha1'] * p['V0'] * p['gca'] / (2 * p['F']))
+            * ((Ca_in_SMC - p['Ca_E'] * np.exp(-2 * p['V0'] * p['F'] / (p['R'] * p['T'])))
+            / ((1 + np.exp(-(p['V0'] - p['Vm']) / p['km']))**2
+                * (1 - np.exp(-2 * p['V0'] * p['F'] / (p['R'] * p['T'])))))
+            - (p['Vp'] * Ca_in_SMC**4) / (p['Kp']**4 + Ca_in_SMC**4)
         )
         return val
+
 
     ## c_vals = np.linspace(int(-100*(vari_init_vals['Ca_in_SMC0']+1)),int(100*(vari_init_vals['Ca_in_SMC0']+1)),400)
 
@@ -86,10 +87,18 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     M = - (p['k_ryr3']**4)*(p['Jer'] + term2)
     print (f"Coefficients in Eq2: E={E}, H={H}, K={K}, M={M}")
     def g_eq(s):
-        # s is array-like, fsolve passes it as [s]
-        Ca_SR = s[0]
-        val = (E*Ca_SR**5 + H*Ca_SR**4 + K*Ca_SR + M)
+        Ca_SR0 = s[0]
+        val = (
+            (p['k_RyR']
+            * (p['k_ryr0'] + (p['k_ryr1'] * Ca_in_SMC0**3)
+                / (p['k_ryr2']**3 + Ca_in_SMC0**3))
+            * (Ca_SR0**4 / (p['k_ryr3']**4 + Ca_SR0**4))
+            + p['Jer'])
+            * (Ca_SR0 - Ca_in_SMC0)
+            - (p['Ve'] * Ca_in_SMC0**2) / (p['Ke'] + Ca_in_SMC0**2)
+        )
         return val
+
 
     # If applies, find all roots of g_eq ---
     with warnings.catch_warnings():

@@ -165,7 +165,7 @@ def optimization_cost(params):
     lambda_smooth = 1.0
 
     ## cost = mse + lambda_smooth * smooth_penalty
-    cost = mse*(1+lambda_smooth*0.1)
+    cost = mse*(1+smooth_penalty*0)
 
     ## print(f" Cost: {cost:.6f}, Params: {params}")
     print(f" Cost: {cost:.6f}")
