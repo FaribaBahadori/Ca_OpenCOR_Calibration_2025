@@ -19,7 +19,7 @@
         <variable initial_value="5.0" name="k_RyR" public_interface="out" units="per_sec"/>
         <variable initial_value="-50" name="Vm" public_interface="out" units="mV"/>
         <variable initial_value="12" name="km" public_interface="out" units="mV"/>
-        <!--test//test//-->
+        <!--test//test//test//-->
         <variable initial_value="16" name="gca" public_interface="out" units="nS_per_uM"/>
         <variable initial_value="96485" name="F" public_interface="out" units="C_per_mol"/>
         <variable initial_value="8345" name="R" public_interface="out" units="mJ_per_K_per_mol"/>
