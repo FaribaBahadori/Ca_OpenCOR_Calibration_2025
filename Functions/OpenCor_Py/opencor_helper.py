@@ -102,7 +102,7 @@ class SimulationHelper():
         """
         gets results after a simulation
         inputs:
-        obs_names: list of list of strings, stores the names of state, algebraic, and constant variables you wish to access
+        obs_names: list of list of strings, stores the names of state, algebraic, and constant variables I want to access
         outputs:
         results: list of lists where the first index is the observable index
         and the second is the operand index for that observable. The same shape as 

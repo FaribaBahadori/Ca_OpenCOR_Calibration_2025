@@ -1,4 +1,5 @@
 import sys, csv, os, numpy as np, pandas as pd, datetime, warnings
+
 from scipy.optimize import minimize
 from Functions.model_utils import SimulationManager
 from Functions.plot_eqs import plot_eqs
@@ -13,11 +14,14 @@ print("Python executable:", sys.executable)
 SIM_TIME = 2000
 PRE_TIME = 2
 run_counter = 0
+# Physiological steady-state ranges (for filtering)
+Ca_IN_RANGE = (0.05, 0.3)     # μM, cytosolic [Ca2+] range
+Ca_SR_RANGE = (10, 100)          # μM, SR [Ca2+] range
 
 os.chdir(r"C:/Fariba_2025/Ca_OpenCOR_Calibration_2025")
 sys.path.insert(0, os.getcwd())
 ## print("Current working directory:", os.getcwd())
-print("Script started running!")
+print("Calib_Script started running!")
 #sleep(1000)
 
 param_names = [
@@ -42,12 +46,26 @@ working_dir = os.path.dirname(os.path.abspath(__file__))
 
 model_path = os.path.abspath(os.path.join(working_dir, "Model", "Main_Coupled_SMC_Model.cellml"))
 
-# Setting the output directory
-output_file_path = "outputs/Ca_Fitting/run222/"
-if not os.path.exists(output_file_path):
-    os.makedirs(output_file_path)
+
+# Add timestamps for organized output folders
+
+run_timestamp     = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") # run-level timestamp
+
+# Base output directory for this session
+
+output_run_path  = os.path.join(output_base_path, "run")
+output_SS_path   = os.path.join(output_base_path, "SS_run")
+plot_path        = os.path.join(output_base_path, "plots")
+SSplot_path        = os.path.join(output_base_path, "SS_plots")
+
+# Make sure all paths exist
+os.makedirs(output_run_path, exist_ok=True)
+os.makedirs(output_SS_path, exist_ok=True)
+os.makedirs(plot_path, exist_ok=True)
+os.makedirs(SSplot_path, exist_ok=True)
+
 sim_manager = SimulationManager(cal_param_names=param_names, cal_var_names=vari_names, tau=0.0, sim_time=SIM_TIME, pre_time=PRE_TIME)
-print(' t2')
+print('t2')
 #---------------------------------------------
 '''
 # Access each state individually
@@ -63,6 +81,7 @@ sim_manager.load_experimental_data(csv_exp_file)
 # Get initial parameter values from the model and print them
 if 'param_init_vals' not in globals():
     param_init_vals = sim_manager.get_init_param_vals(sim_manager.call_param_names)
+    print("parameter values not provided, using model defaults.")
 param_names = sim_manager.call_param_names
 '''
 ## print("Initial parameter values:")
@@ -85,14 +104,14 @@ lower_multipliers = [
     1,1,1,1,1,          # l_m1, l_m2, l_m3, l_m4, l_m5
     1,1,                # p_agonist, Ca_E
     1,1,                # t1_KCL, t2_KCL
-    1, 1, 1,            # alpha0, alpha1, alpha2
-    1, 1,               # V0, V1
-    1, 1, 1, 1,         # k_ryr0, k_ryr1, k_ryr2, k_ryr3
-    1, 1, 1,            # Vm, km, gca
+    0.1, 0.1, 1,            # alpha0, alpha1, alpha2
+    1, 0.7,               # V0, V1
+    0.2, 0.2, 0.2, 0.2,         # k_ryr0, k_ryr1, k_ryr2, k_ryr3
+    0.7, 0.2, 0.2,            # Vm, km, gca
     1, 1, 1,            # F, R, T
-    1, 1, 1,            # Jer, Ve, Ke
-    1, 1, 1,       # Vp, Kp, gamma
-    0.1, 1, 1         # delta_SMC, k_RyR, k_ipr
+    0.2, 0.5, 0.5,            # Jer, Ve, Ke
+    1, 1, 0.8,       # Vp, Kp, gamma
+    0.1, 0.1, 1         # delta_SMC, k_RyR, k_ipr
 ]
 
 upper_multipliers = [
@@ -100,14 +119,14 @@ upper_multipliers = [
     1,1,1,1,1,         # l_m1, l_m2, l_m3, l_m4, l_m5
     1,1,               # p_agonist, Ca_E
     1,1,               # t1_KCL, t2_KCL
-    2, 1, 1,           # alpha0, alpha1, alpha2
-    1, 1.34,              # V0, V1
+    10, 10, 1,           # alpha0, alpha1, alpha2
+    1, 1.33,              # V0, V1
     5, 5, 5, 5,        # k_ryr0, k_ryr1, k_ryr2, k_ryr3
     1.2, 5, 5,           # Vm, km, gca
     1, 1, 1,           # F, R, T
-    2, 2, 2,           # Jer, Ve, Ke
-    1, 1, 1,          # Vp, Kp, gamma
-    1, 1, 1          # delta_SMC, k_RyR, k_ipr
+    5, 5, 5,           # Jer, Ve, Ke
+    5, 5, 1.2,          # Vp, Kp, gamma
+    10, 10, 1          # delta_SMC, k_RyR, k_ipr
 ]
 param_bounds = [
     (min(l * val, u * val), max(l * val, u * val))
@@ -118,7 +137,10 @@ def optimization_cost(params):
     global run_counter
     run_counter += 1
     print(f"\n--- Run #{run_counter} ---")   # <-- shows which parameter set is being tried
+
+    # Run model to get steady-state values ---
     outputs, t, Ca_in_SMC_val, Ca_SR_val, y_val = sim_manager.run_and_get_results(params, SS_vals=True)
+
     Ca_in_SMC = np.squeeze(outputs[0])   # model output
 
     # Match model time points exactly with experimental times
@@ -194,8 +216,9 @@ optimal_params = res.x
 
 print(f"Optimal parameters: {optimal_params}")
 
-csv_output_file = os.path.join(output_file_path, "optimized_parameters.csv")
-run_timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+csv_output_file   = os.path.join(output_run_path, "optimized_parameters.csv")
+csv_output_SSfile = os.path.join(output_SS_path, "SS_optimized_parameters.csv")
+
 # Prepare simplified parameter names
 param_names_simple = [name.split('/')[-1] for name in param_names]
 
@@ -208,8 +231,9 @@ yy, t, Ca_in_SMC_val, Ca_SR_val, y_val = sim_manager.run_and_get_results(optimal
 # Prepare row as dictionary
 row_data = {
     'run_id': run_timestamp,
-    'sim_time': sim_manager.sim_time,
-    'pre_time': sim_manager.pre_time,
+    'run_counter': run_counter,
+ ##   'sim_time': sim_manager.sim_time,
+ ##   'pre_time': sim_manager.pre_time,
     'final_cost': res.fun,
     'SS_Ca_in_SMC0': Ca_in_SMC_val,
     'SS_Ca_SR0': Ca_SR_val,
@@ -238,18 +262,42 @@ else:
 # Save file
 merged_df.to_csv(csv_output_file, index=False)
 
-timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-output_plot_path_full = os.path.join(output_file_path, f"Ca_concentration_plot_{timestamp}.png")
+# --- Check if steady-state values fall in physiological ranges ---
+in_SS_range = (Ca_IN_RANGE[0] <= Ca_in_SMC_val <= Ca_IN_RANGE[1]) and \
+               (Ca_SR_RANGE[0] <= Ca_SR_val <= Ca_SR_RANGE[1])
+
+if in_SS_range:
+    print(f"Steady-state OK: Ca_cyt={Ca_in_SMC_val:.3f} μM, Ca_SR={Ca_SR_val:.1f} μM")
+    # Append or create file
+    if os.path.exists(csv_output_SSfile):
+        SS_existing_df = pd.read_csv(csv_output_SSfile)
+        SS_merged_df = pd.concat([SS_existing_df, current_run_df], ignore_index=True)
+    else:
+        SS_merged_df = current_run_df
+
+    # Save file
+    SS_merged_df.to_csv(csv_output_SSfile, index=False)
+else:
+    print(f"Steady-state out of range: Ca_cyt={Ca_in_SMC_val:.3f} μM, Ca_SR={Ca_SR_val:.1f} μM")
+
+plot_filename     = f"[Ca]_plot_{run_timestamp}.png"
+plot_SS_filename  = f"SS_[Ca]_plot_{run_timestamp}.png"
+
+output_plot_path_full    = os.path.join(plot_path, plot_filename)
+output_SSplot_path_full  = os.path.join(SSplot_path, plot_SS_filename)
 
 # Full or custom-time simulation for plotting
-plot_sim_time = 2000   #total simulation time you want
+plot_sim_time = 2000   #total simulation time
 plot_pre_time = 0      # a pre-time offset
 
 sim_manager.sim_time = plot_sim_time
 sim_manager.pre_time = plot_pre_time
 
 outputs_full, t_full = sim_manager.run_and_get_results(optimal_params, SS_vals=False)
+
 sim_manager.plot_model_out_and_experimental_data(outputs_full, t_full, output_plot_path_full)
+if in_SS_range:
+    sim_manager.plot_model_out_and_experimental_data(outputs_full, t_full, output_SSplot_path_full)
 
 """# --- Prepare folder for plots ---
 plot_folder = os.path.join(os.path.dirname(output_file_path), "run22")
@@ -264,4 +312,3 @@ vari_init_vals_dict = {name: val for name, val in zip(sim_manager.call_var_names
 # --- Call plot_eqs for optimized parameter set ---
 print(f"Current params: {optimal_params_dict}, Cost (MSE): {res.fun:.6f}")
 plot_eqs(optimal_params_dict, vari_init_vals_dict, plot_folder)"""
-

@@ -17,7 +17,7 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     # Normalize vari_init_vals keys to short names
     vari_init_vals = {k.split('/')[-1]: v for k, v in vari_init_vals.items()}
     clb = 0  # Physiological lower bound for Ca_in_SMC0
-    cub = 3  # Physiological upper bound for Ca_in_SMC0
+    cub = 5  # Physiological upper bound for Ca_in_SMC0
     # 1) Solve Eq1 for Ca_in_SMC0
     #  Coefficients for Eq1
     
@@ -76,7 +76,7 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     Ca_in_SMC0 = Ca_in_SMC0_val
 
     slb = 0  # physiological lower bound for Ca_SR
-    sub = 100  # physiological upper bound for Ca_SR
+    sub = 300  # physiological upper bound for Ca_SR
 
     # --- 2) Solve Eq2 for Ca_SR ---
     term1 = p['k_RyR'] * (p['k_ryr0'] + (p['k_ryr1'] * Ca_in_SMC0**3) / (p['k_ryr2']**3 + Ca_in_SMC0**3))
@@ -104,7 +104,7 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     with warnings.catch_warnings():
         warnings.simplefilter("error", OptimizeWarning) # treat as error
         try:
-            s_vals = np.linspace(slb, sub, 100000)  # search range, can adjust upper limit if needed
+            s_vals = np.linspace(slb, sub, 1000)  # search range, can adjust upper limit if needed
             g_vals = np.array([g_eq([s]) for s in s_vals])
             crossings = np.where(np.diff(np.sign(g_vals)))[0]
             num_roots = len(np.where(np.diff(np.sign(g_vals)))[0])
