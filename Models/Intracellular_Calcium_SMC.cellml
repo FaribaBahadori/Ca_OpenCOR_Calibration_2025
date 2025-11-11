@@ -11,35 +11,53 @@
         <variable initial_value="1886" name="l_m3" public_interface="out" units="per_sec"/>
         <variable initial_value="0.145" name="l_m4" public_interface="out" units="per_sec"/>
         <variable initial_value="8.2" name="l_m5" public_interface="out" units="per_sec"/>
-        <variable initial_value="0.0072" name="k_ryr0" public_interface="out" units="dimensionless"/>
-        <variable initial_value="0.334" name="k_ryr1" public_interface="out" units="dimensionless"/>
-        <variable initial_value="0.5" name="k_ryr2" public_interface="out" units="uM"/>
-        <variable initial_value="38" name="k_ryr3" public_interface="out" units="uM"/>
+        <variable initial_value="1.912484628" name="k_ryr0" public_interface="out" units="dimensionless"/>
+        <!-- 0.0072-->
+        <variable initial_value="0.22934991" name="k_ryr1" public_interface="out" units="dimensionless"/>
+        <!-- 0.334-->
+        <variable initial_value="21.21932599" name="k_ryr2" public_interface="out" units="uM"/>
+        <!-- 0.5-->
+        <variable initial_value="38.31557078" name="k_ryr3" public_interface="out" units="uM"/>
+        <!-- 38-->
         <variable initial_value="5.55" name="k_ipr" public_interface="out" units="per_sec"/>
-        <variable initial_value="5.0" name="k_RyR" public_interface="out" units="per_sec"/>
-        <variable initial_value="-50" name="Vm" public_interface="out" units="mV"/>
-        <variable initial_value="12" name="km" public_interface="out" units="mV"/>
+        <variable initial_value="4.569088024" name="k_RyR" public_interface="out" units="per_sec"/>
+        <!-- 5.0-->
+        <variable initial_value="-50.33745033" name="Vm" public_interface="out" units="mV"/>
+        <!--  -50-->
+        <variable initial_value="16.64435804" name="km" public_interface="out" units="mV"/>
+        <!-- 12-->
         <!--test//test//test//-->
-        <variable initial_value="16" name="gca" public_interface="out" units="nS_per_uM"/>
+        <variable initial_value="30.90642505" name="gca" public_interface="out" units="nS_per_uM"/>
+        <!-- 16-->
         <variable initial_value="96485" name="F" public_interface="out" units="C_per_mol"/>
         <variable initial_value="8345" name="R" public_interface="out" units="mJ_per_K_per_mol"/>
         <variable initial_value="310" name="T" public_interface="out" units="kelvin"/>
-        <variable initial_value="0.05" name="alpha0" public_interface="out" units="uM_per_sec"/>
-        <variable initial_value="0.25" name="alpha1" public_interface="out" units="dimensionless"/>
+        <variable initial_value="0.056711214" name="alpha0" public_interface="out" units="uM_per_sec"/>
+        <!-- 0.05-->
+        <variable initial_value="0.210342121" name="alpha1" public_interface="out" units="dimensionless"/>
+        <!-- 0.25-->
         <variable initial_value="1" name="alpha2" public_interface="out" units="per_sec"/>
-        <variable initial_value="0.1" name="Jer" public_interface="out" units="per_sec"/>
-        <variable initial_value="4.5" name="Ve" public_interface="out" units="uM_per_sec"/>
-        <variable initial_value="0.1" name="Ke" public_interface="out" units="uM"/>
-        <variable initial_value="4.5" name="Vp" public_interface="out" units="uM_per_sec"/>
-        <variable initial_value="0.4" name="Kp" public_interface="out" units="uM"/>
-        <variable initial_value="5.5" name="gamma" public_interface="out" units="dimensionless"/>
-        <variable initial_value="0.05" name="delta_SMC" public_interface="out" units="dimensionless"/>
+        <variable initial_value="0.498035613" name="Jer" public_interface="out" units="per_sec"/>
+        <!-- 0.1-->
+        <variable initial_value="10.16177256" name="Ve" public_interface="out" units="uM_per_sec"/>
+        <!-- 4.5-->
+        <variable initial_value="0.05377898" name="Ke" public_interface="out" units="uM"/>
+        <!-- 0.1-->
+        <variable initial_value="4.111736364" name="Vp" public_interface="out" units="uM_per_sec"/>
+        <!-- 4.5-->
+        <variable initial_value="0.400857484" name="Kp" public_interface="out" units="uM"/>
+        <!-- 0.4-->
+        <variable initial_value="6.301286174" name="gamma" public_interface="out" units="dimensionless"/>
+        <!-- 5.5-->
+        <variable initial_value="0.051261883" name="delta_SMC" public_interface="out" units="dimensionless"/>
+        <!-- 0.05-->
         <variable initial_value="1" name="delta2" public_interface="out" units="dimensionless"/>
     </component>
     <component name="asm_ca">
         <variable name="time" public_interface="in" units="second"/>
         <variable initial_value="Ca_in_SMC0" name="Ca_in_SMC" public_interface="out" units="uM"/>
-        <variable initial_value="0.116477" name="Ca_in_SMC0" public_interface="out" units="uM"/>
+        <variable initial_value="0.241395024" name="Ca_in_SMC0" public_interface="out" units="uM"/>
+        <!-- 0.116477-->
         <!--/ var Ca_in_SMC: uM {pub: out};-->
         <!--       var Ca_in_SMC_dig: uM {pub: out};-->
         <variable name="J_release" public_interface="out" units="uM_per_sec"/>
@@ -52,7 +70,8 @@
         <variable name="P_RyR" public_interface="out" units="dimensionless"/>
         <variable name="Jer" public_interface="in" units="per_sec"/>
         <variable initial_value="Ca_SR0" name="Ca_SR" public_interface="out" units="uM"/>
-        <variable initial_value="27.5" name="Ca_SR0" public_interface="out" units="uM"/>
+        <variable initial_value="10.04396733" name="Ca_SR0" public_interface="out" units="uM"/>
+        <!-- 27.5-->
         <variable initial_value="0" name="p_agonist" public_interface="out" units="uM"/>
         <variable name="k_ryr0" public_interface="in" units="dimensionless"/>
         <variable name="k_ryr1" public_interface="in" units="dimensionless"/>
@@ -67,7 +86,8 @@
         <variable name="alpha2" public_interface="in" units="per_sec"/>
         <variable name="F" public_interface="in" units="C_per_mol"/>
         <variable initial_value="y0" name="y" public_interface="out" units="dimensionless"/>
-        <variable initial_value="0.38" name="y0" public_interface="out" units="dimensionless"/>
+        <variable initial_value="0.624736368" name="y0" public_interface="out" units="dimensionless"/>
+        <!-- 0.38-->
         <variable name="phi1" public_interface="out" units="per_sec"/>
         <variable name="phi2" public_interface="out" units="per_sec"/>
         <variable name="l_1" public_interface="in" units="per_uM_per_sec"/>
@@ -101,9 +121,11 @@
         <variable name="Ca_t" public_interface="out" units="uM"/>
         <!--      var t_ago1: second {init: 50, pub: out};
       var p_ago1: uM {init: 0, pub: out};-->
-        <variable initial_value="2" name="t1_KCL" public_interface="out" units="second"/>
-        <variable initial_value="1802" name="t2_KCL" public_interface="out" units="second"/>
-        <variable initial_value="-60" name="V1" public_interface="out" units="mV"/>
+        <variable initial_value="102" name="t1_KCL" public_interface="out" units="second"/>
+        <variable initial_value="2002" name="t2_KCL" public_interface="out" units="second"/>
+        <variable initial_value="-39.8881623" name="V1" public_interface="out" units="mV"/>
+        <!---39.8881623-->
+        <!-- -30-->
         <!---54 mV==20mM KCL-->
         <variable initial_value="-60" name="V0" public_interface="out" units="mV"/>
         <math xmlns="http://www.w3.org/1998/Math/MathML">

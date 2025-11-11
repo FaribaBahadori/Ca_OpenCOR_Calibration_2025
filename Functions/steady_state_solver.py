@@ -16,8 +16,8 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     p = {k.split('/')[-1]: v for k, v in params.items()}
     # Normalize vari_init_vals keys to short names
     vari_init_vals = {k.split('/')[-1]: v for k, v in vari_init_vals.items()}
-    clb = 0  # Physiological lower bound for Ca_in_SMC0
-    cub = 5  # Physiological upper bound for Ca_in_SMC0
+    clb = 0.001  # Physiological lower bound for Ca_in_SMC0
+    cub = 100.001  # Physiological upper bound for Ca_in_SMC0
     # 1) Solve Eq1 for Ca_in_SMC0
     #  Coefficients for Eq1
     
@@ -30,14 +30,14 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     e2 = (1 + exp(-(p['V0'] - p['Vm'])/p['km']))**2
 
     def f_eq(c):
-        Ca_in_SMC = c[0]
+        Ca_in_SMC0 = c[0]
         val = (
             p['alpha0']
             - (p['alpha1'] * p['V0'] * p['gca'] / (2 * p['F']))
-            * ((Ca_in_SMC - p['Ca_E'] * np.exp(-2 * p['V0'] * p['F'] / (p['R'] * p['T'])))
+            * ((Ca_in_SMC0 - p['Ca_E'] * np.exp(-2 * p['V0'] * p['F'] / (p['R'] * p['T'])))
             / ((1 + np.exp(-(p['V0'] - p['Vm']) / p['km']))**2
                 * (1 - np.exp(-2 * p['V0'] * p['F'] / (p['R'] * p['T'])))))
-            - (p['Vp'] * Ca_in_SMC**4) / (p['Kp']**4 + Ca_in_SMC**4)
+            - (p['Vp'] * Ca_in_SMC0**4) / (p['Kp']**4 + Ca_in_SMC0**4)
         )
         return val
 
@@ -51,7 +51,7 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     with warnings.catch_warnings():
         warnings.simplefilter("error", OptimizeWarning)
         try:
-            c_scan = np.linspace(clb, cub, 1000)  # scan beyond local min
+            c_scan = np.linspace(clb, cub, 100000)  # scan beyond local min
             f_vals = [f_eq([c]) for c in c_scan]
 
             # Find where function crosses zero
@@ -65,7 +65,7 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
                 print(f"the root between {c_scan[idx1]} and {c_scan[idx1+1]} is:", Ca_in_SMC0_val)
             else:
                 print(f"No root found between {clb} and  {cub}.")
-
+                
         except OptimizeWarning:
             print("fsolve did not converge for this parameter set.")
             return None, None, None  # skip this run
@@ -75,8 +75,8 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
 
     Ca_in_SMC0 = Ca_in_SMC0_val
 
-    slb = 0  # physiological lower bound for Ca_SR
-    sub = 300  # physiological upper bound for Ca_SR
+    slb = 0.01  # physiological lower bound for Ca_SR
+    sub = 100.01  # physiological upper bound for Ca_SR
 
     # --- 2) Solve Eq2 for Ca_SR ---
     term1 = p['k_RyR'] * (p['k_ryr0'] + (p['k_ryr1'] * Ca_in_SMC0**3) / (p['k_ryr2']**3 + Ca_in_SMC0**3))
@@ -104,7 +104,7 @@ def steady_state_smc(params, vari_init_vals, return_extra=False):
     with warnings.catch_warnings():
         warnings.simplefilter("error", OptimizeWarning) # treat as error
         try:
-            s_vals = np.linspace(slb, sub, 1000)  # search range, can adjust upper limit if needed
+            s_vals = np.linspace(slb, sub, 100000)  # search range, can adjust upper limit if needed
             g_vals = np.array([g_eq([s]) for s in s_vals])
             crossings = np.where(np.diff(np.sign(g_vals)))[0]
             num_roots = len(np.where(np.diff(np.sign(g_vals)))[0])

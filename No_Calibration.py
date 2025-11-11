@@ -15,7 +15,7 @@ SIM_TIME = 2000
 PRE_TIME = 2
 run_counter = 0
 # Physiological steady-state ranges (for filtering)
-Ca_IN_RANGE = (0.03, 0.3)     # μM, cytosolic [Ca2+] range
+Ca_IN_RANGE = (0.05, 0.3)     # μM, cytosolic [Ca2+] range
 Ca_SR_RANGE = (10, 100)          # μM, SR [Ca2+] range
 
 os.chdir(r"C:/Fariba_2025/Ca_OpenCOR_Calibration_2025")
@@ -104,14 +104,14 @@ lower_multipliers = [
     1,1,1,1,1,          # l_m1, l_m2, l_m3, l_m4, l_m5
     1,1,                # p_agonist, Ca_E
     1,1,                # t1_KCL, t2_KCL
-    0.5, 0.5, 1,            # alpha0, alpha1, alpha2
-    1, 0.7,               # V0, V1
-    0.2, 0.2, 0.2, 0.1,         # k_ryr0, k_ryr1, k_ryr2, k_ryr3
-    0.7, 0.2, 0.2,            # Vm, km, gca
+    1, 1, 1,            # alpha0, alpha1, alpha2
+    1, 1,               # V0, V1
+    1, 1, 1, 1,         # k_ryr0, k_ryr1, k_ryr2, k_ryr3
+    1, 1, 1,            # Vm, km, gca
     1, 1, 1,            # F, R, T
-    0.2, 0.1, 0.1,            # Jer, Ve, Ke
-    0.2, 0.1, 0.5,       # Vp, Kp, gamma
-    0.1, 0.1, 1         # delta_SMC, k_RyR, k_ipr
+    1, 1, 1,            # Jer, Ve, Ke
+    1, 1, 1,            # Vp, Kp, gamma
+    1, 1, 1             # delta_SMC, k_RyR, k_ipr
 ]
 
 upper_multipliers = [
@@ -119,14 +119,14 @@ upper_multipliers = [
     1,1,1,1,1,         # l_m1, l_m2, l_m3, l_m4, l_m5
     1,1,               # p_agonist, Ca_E
     1,1,               # t1_KCL, t2_KCL
-    10, 5, 1,           # alpha0, alpha1, alpha2
-    1, 1.33,              # V0, V1
-    10, 10, 10, 3,        # k_ryr0, k_ryr1, k_ryr2, k_ryr3
-    1.1, 5, 1.3,           # Vm, km, gca
+    1, 1, 1,           # alpha0, alpha1, alpha2
+    1, 1,              # V0, V1
+    1, 1, 1, 1,        # k_ryr0, k_ryr1, k_ryr2, k_ryr3
+    1, 1, 1,           # Vm, km, gca
     1, 1, 1,           # F, R, T
-    5, 2, 10,           # Jer, Ve, Ke
-    3, 5, 5,          # Vp, Kp, gamma
-    5, 10, 1          # delta_SMC, k_RyR, k_ipr
+    1, 1, 1,           # Jer, Ve, Ke
+    1, 1, 1,          # Vp, Kp, gamma
+    1, 1, 1          # delta_SMC, k_RyR, k_ipr
 ]
 param_bounds = [
     (min(l * val, u * val), max(l * val, u * val))
@@ -212,6 +212,7 @@ def optimization_cost(params):
     else:
         step_df.to_csv(csv_progress_file, index=False)
     #
+
     # Save step results to run2 folder as CSV
     ##step_file = os.path.join(output_file_path, "optimization_progress.csv")
     ##step_row = {
