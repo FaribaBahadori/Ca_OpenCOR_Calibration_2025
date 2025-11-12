@@ -70,7 +70,9 @@
         <variable name="P_RyR" public_interface="out" units="dimensionless"/>
         <variable name="Jer" public_interface="in" units="per_sec"/>
         <variable initial_value="Ca_SR0" name="Ca_SR" public_interface="out" units="uM"/>
-        <variable initial_value="10.04396733" name="Ca_SR0" public_interface="out" units="uM"/>
+        <variable initial_value="14.5558862225983" name="Ca_SR0" public_interface="out" units="uM"/>
+        <!--14.5558862225983-->
+        <!--10.04396733,-->
         <!-- 27.5-->
         <variable initial_value="0" name="p_agonist" public_interface="out" units="uM"/>
         <variable name="k_ryr0" public_interface="in" units="dimensionless"/>
