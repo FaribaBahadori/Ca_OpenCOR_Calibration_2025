@@ -1,11 +1,11 @@
 import datetime, os, sys, pandas as pd
 os.chdir(r"C:/Fariba_2025/Ca_OpenCOR_Calibration_2025")
 sys.path.insert(0, os.getcwd())
-from Functions.init_set_test import init_set_test
+from Functions.init_set0 import init_set0
 ##import Calibration as calib  # Calibration.py script
 
 # 1. Create initial parameter sets CSV
-csv_path = init_set_test()
+csv_path = init_set0()
 
 # 2. Load all parameter sets
 param_sets = pd.read_csv(csv_path)
@@ -14,7 +14,7 @@ param_sets = pd.read_csv(csv_path)
 output_dir = r"outputs/Ca_Fitting/run222"
 os.makedirs(output_dir, exist_ok=True)
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M") # session-level timestamp
-output_base_path = os.path.join("outputs", "Ca_Fitting", f"session_{timestamp}_SS_test_Ke")
+output_base_path = os.path.join("outputs", "Ca_Fitting", f"session_{timestamp}_SS_test")
 # 4. Loop over each row
 for i, row in param_sets.iterrows():
     print(f"\n=== Running optimisation {i+1}/{len(param_sets)} ===")

@@ -26,7 +26,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 # ----------------------------
 # Importing helper modules
-from Functions.steady_state_solver_test1 import steady_state_smct
+from Functions.steady_state_solver_test1 import steady_state_smct1
 
 # Matplotlib backend for saving figures without display
 matplotlib.use('Agg')
@@ -109,7 +109,7 @@ class SimulationManager:
         param_vals_dict = dict(zip(self.call_param_names, param_vals_list))
 
         # Update initial values using steady-state function
-        Ca_in_SMC_val, Ca_SR_val, y_val = steady_state_smct(
+        Ca_in_SMC_val, Ca_SR_val, y_val = steady_state_smct1(
             params=param_vals_dict,
             vari_init_vals={'Ca_in_SMC0': Ca_in_SMC_val, 'Ca_SR0': Ca_SR_val, 'y0': y_val}, return_extra=False
         )
